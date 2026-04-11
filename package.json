@@ -16,9 +16,14 @@
   "author": "Hasnain Malik <mhicoder@gmail.com>",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/node": "^25.6.0",
+    "eslint": "^9.39.4",
+    "globals": "^17.4.0",
+    "jiti": "^2.6.1",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.1"
   }
 }
