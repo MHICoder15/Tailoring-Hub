@@ -1,7 +1,10 @@
-console.log("Welcome to Tailoring Hub API");
+import app from "./src/app.ts";
 
-function startServer() {
-  console.log("Starting the server...");
-}
+const startServer = () => {
+  const PORT = process.env.PORT || 4000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+};
 
 startServer();
