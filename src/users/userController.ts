@@ -39,7 +39,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = Jwt.sign({ id: newUser._id }, config.jwtSecret as string, { expiresIn: "1d" });
     // Response
-    res.json({ message: "User registered successfully", id: newUser._id, accessToken: token });
+    res.status(201).json({ message: "User registered successfully", id: newUser._id, accessToken: token });
 
   } catch (error) {
     console.error(error);
