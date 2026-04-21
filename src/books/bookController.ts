@@ -5,6 +5,7 @@ import bookModel from "./bookModel.ts";
 import { unlink } from "node:fs/promises";
 import createHttpError from "http-errors";
 import type { Book } from "./bookTypes.ts";
+import type { AuthRequest } from "../middlewares/authentication.ts";
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {
   const { title, author, genre } = req.body;
@@ -60,10 +61,11 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
     return next(httpError);
   }
   // Database operations
+  const _req = req as AuthRequest;
   try {
     const newBook: Book = await bookModel.create({
       title,
-      author,
+      author: _req.userId as string || author,
       genre,
       coverImage: uploadCoverImage.secure_url,
       file: uploadBookFile.secure_url
