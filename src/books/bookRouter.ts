@@ -2,17 +2,12 @@ import express from "express";
 import { createBook } from "./bookController.ts";
 import multer from "multer";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { dirname } from "node:path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const bookRouter = express.Router();
 
 // File store locally
 const upload = multer({
-  dest: path.resolve(__dirname, "../../public/data/uploads"),
+  dest: path.join(process.cwd(), "public/data/uploads"),
   limits: { fileSize: 3e7 } // 30MB
 });
 
