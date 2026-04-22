@@ -2,8 +2,14 @@ import express from "express";
 import globleErrorHandler from "./middlewares/globle-error-handler.js";
 import userRouter from "./users/userRouter.ts";
 import bookRouter from "./books/bookRouter.ts";
+import cors from "cors";
 
 const app = express();
+app.use(cors({
+  origin: process.env.FRONTEND_DOMAIN,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  // allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 
 // Routes
