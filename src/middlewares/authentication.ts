@@ -18,7 +18,6 @@ const authentication = (req: Request, res: Response, next: NextFunction) => {
   }
   try {
     const decodedToken = jwt.verify(parsedToken, config.jwtSecret as string);
-    console.log("Decoded Token:", decodedToken);
     if (typeof decodedToken === "object" && decodedToken !== null) {
       const _req = req as AuthRequest;
       _req.userId = (decodedToken as JwtPayload).id as string;
