@@ -141,9 +141,12 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
         display_name: displayName
       });
       uploadCoverImage = coverImage.secure_url;
-      // Remove temporary file after public folder
+      // Remove temporary file after public folder and old cover image from cloudinary
       try {
         await unlink(filePath);
+        const splitCoverImageUrl = book.coverImage.split("/");
+        const coverImagePublicId = splitCoverImageUrl?.at(-2) + "/" + splitCoverImageUrl?.at(-1)?.split(".")[0];
+        await cloudinary.uploader.destroy(coverImagePublicId as string);
       } catch (error) {
         console.error("Error deleting cover image file:", error);
         const httpError = createHttpError(500, "Error occurred while deleting cover image file");
@@ -176,9 +179,12 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
         display_name: bookDisplayName
       });
       uploadBookFile = bookFile.secure_url;
-      // Remove temporary files after public folder
+      // Remove temporary files after public folder and old files from cloudinary
       try {
         await unlink(bookFilePath);
+        const splitFileUrl = book.file.split("/");
+        const filePublicId = splitFileUrl?.at(-2) + "/" + splitFileUrl?.at(-1);
+        await cloudinary.uploader.destroy(filePublicId as string, { resource_type: "raw" });
       } catch (error) {
         console.error("Error deleting book file:", error);
         const httpError = createHttpError(500, "Error occurred while deleting book file");
@@ -213,8 +219,10 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 const listBooks = async (req: Request, res: Response, next: NextFunction) => {
+  // Database operations
   try {
     const books = await bookModel.find();
+    // Response
     res.json({ books });
   } catch (error) {
     console.error("Error fetching books:", error);
@@ -224,12 +232,14 @@ const listBooks = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 const singleBook = async (req: Request, res: Response, next: NextFunction) => {
+  // Database operations
   try {
     const book = await bookModel.findById(req.params.bookId);
     if (!book) {
       const httpError = createHttpError(404, "Book not found");
       return next(httpError);
     }
+    // Response
     res.json({ book });
   } catch (error) {
     console.error("Error fetching book:", error);
@@ -238,4 +248,47 @@ const singleBook = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-export { createBook, updateBook, listBooks, singleBook };
+const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
+  // Database operations
+  try {
+    const book = await bookModel.findById(req.params.bookId);
+    if (!book) {
+      const httpError = createHttpError(404, "Book not found");
+      return next(httpError);
+    }
+    // Validation
+    if (book.author._id.toString() !== (req as AuthRequest).userId) {
+      const error = createHttpError(403, "You are not authorized to delete this book");
+      return next(error);
+    }
+    // Deleting cover image from cloudinary
+    try {
+      const splitCoverImageUrl = book.coverImage.split("/");
+      const coverImagePublicId = splitCoverImageUrl?.at(-2) + "/" + splitCoverImageUrl?.at(-1)?.split(".")[0];
+      await cloudinary.uploader.destroy(coverImagePublicId as string);
+    } catch (error) {
+      console.error("Error deleting cover image:", error);
+      const httpError = createHttpError(500, "Error occurred while deleting cover image");
+      return next(httpError);
+    }
+    // Deleting book file from cloudinary
+    try {
+      const splitFileUrl = book.file.split("/");
+      const filePublicId = splitFileUrl?.at(-2) + "/" + splitFileUrl?.at(-1);
+      await cloudinary.uploader.destroy(filePublicId as string, { resource_type: "raw" });
+    } catch (error) {
+      console.error("Error deleting book file:", error);
+      const httpError = createHttpError(500, "Error occurred while deleting book file");
+      return next(httpError);
+    }
+    await bookModel.findByIdAndDelete(req.params.bookId);
+    // Response
+    res.json({ message: "Book deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting book:", error);
+    const httpError = createHttpError(500, "Error occurred while deleting book");
+    return next(httpError);
+  }
+}
+
+export { createBook, updateBook, listBooks, singleBook, deleteBook };
