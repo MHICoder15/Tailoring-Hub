@@ -1,7 +1,7 @@
 import express from "express";
 import globleErrorHandler from "./middlewares/globle-error-handler.js";
-import userRouter from "./users/userRouter.ts";
-import bookRouter from "./books/bookRouter.ts";
+import userRouter from "./routes/user.route.ts";
+import bookRouter from "./routes/book.route.ts";
 import cors from "cors";
 
 const app = express();

@@ -1,10 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import cloudinary from "../config/cloudinary.ts";
 import path from "node:path";
-import bookModel from "./bookModel.ts";
+import bookModel from "../models/book.model.ts";
 import { unlink } from "node:fs/promises";
 import createHttpError from "http-errors";
-import type { Book } from "./bookTypes.ts";
+import type { Book } from "../interfaces/book.interface.ts";
 import type { AuthRequest } from "../middlewares/authentication.ts";
 
 const createBook = async (req: Request, res: Response, next: NextFunction) => {

@@ -1,4 +1,4 @@
-import type { User } from "../users/userTypes.ts";
+import type { User } from "./user.interface.ts";
 
 export interface Book {
   _id: string;

@@ -1,10 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
-import userModel from "./userModel.ts";
+import userModel from "../models/user.model.ts";
 import bcrypt from "bcrypt";
 import Jwt from "jsonwebtoken";
 import { config } from "../config/config.ts";
-import type { User } from "./userTypes.ts";
+import type { User } from "../interfaces/user.interface.ts";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   // Validation

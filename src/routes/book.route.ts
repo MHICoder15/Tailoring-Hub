@@ -1,5 +1,5 @@
 import express from "express";
-import { createBook, deleteBook, listBooks, singleBook, updateBook } from "./bookController.ts";
+import { createBook, deleteBook, listBooks, singleBook, updateBook } from "../controllers/book.controller.ts";
 import multer from "multer";
 import path from "node:path";
 import authentication from "../middlewares/authentication.ts";
