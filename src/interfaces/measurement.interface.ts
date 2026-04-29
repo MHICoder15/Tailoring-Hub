@@ -1,8 +1,9 @@
-import { Types } from 'mongoose';
+// import { Types } from 'mongoose';
 
 export interface Measurement {
   // Customer Info
-  customerId: Types.ObjectId;
+  _id: string;
+  // customerId: Types.ObjectId;
   name: string;
   bookingNumber: string;
   phoneNumber: string;
@@ -25,7 +26,7 @@ export interface Measurement {
   crotchDepth: number;
 
   // Stitching Notes
-  stitchingType: boolean;
+  stitchingType: string;
   waistType: string;
   neckType: string;
   frontPocket: string;

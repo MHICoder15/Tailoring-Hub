@@ -3,7 +3,7 @@ import type { Measurement } from '../interfaces/measurement.interface.ts';
 
 const measurementSchema = new mongoose.Schema<Measurement>({
   // Customer Info
-  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: [true, 'Customer ID is required'] },
+  // customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: [true, 'Customer ID is required'] },
   name: { type: String, required: [true, 'Customer name is required'], trim: true },
   bookingNumber: { type: String, required: [true, 'Booking number is required'], unique: true, trim: true },
   phoneNumber: { type: String, required: [true, 'Phone number is required'], trim: true },
@@ -26,7 +26,7 @@ const measurementSchema = new mongoose.Schema<Measurement>({
   crotchDepth: { type: Number, required: [true, 'Crotch depth is required'] }, // Crotch depth is the vertical distance from the waistline to the bottom of the crotch area
 
   // Stitching Notes (All Required)
-  stitchingType: { type: Boolean, required: [true, 'Stitching type is required'] }, // Stitching single, double, shiny single, shiny double, kurta
+  stitchingType: { type: String, required: [true, 'Stitching type is required'] }, // Stitching single, double, shiny single, shiny double, kurta
   waistType: { type: String, required: [true, 'Waist type is required'] }, // Waist type is whether the kameez waist should be straight or round 
   neckType: { type: String, required: [true, 'Neck type is required'] }, // Neck type collar, ban (straight / cut), round 
   frontPocket: { type: String, required: [true, 'Front pocket is required'] }, // Front pocket is whether the kameez should have a front pockets single, double, none
