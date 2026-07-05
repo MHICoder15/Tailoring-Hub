@@ -1,0 +1,40 @@
+/* Utils */
+.clearfix:after {
+  content: ' ';
+  display: block;
+  clear: both;
+}
+
+.card {
+  background: var(--surface-card);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-radius: var(--content-border-radius);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.p-toast {
+  &.p-toast-top-right,
+  &.p-toast-top-left,
+  &.p-toast-top-center {
+    top: 100px;
+  }
+}
+
+.p-button:disabled {
+  cursor: not-allowed !important;
+}
+
+.form-label span {
+  color: var(--p-inputtext-invalid-border-color);
+}
+.p-inputtext.ng-invalid.ng-dirty::placeholder {
+  color: var(--p-inputtext-invalid-border-color) !important;
+}
+.error-msg {
+  color: var(--p-inputtext-invalid-border-color);
+  font-size: smaller;
+}

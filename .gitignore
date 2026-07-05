@@ -1,0 +1,8 @@
+**/node_modules/
+**/dist/
+**/.angular/
+
+backend/.env
+frontend/.env
+
+*.log

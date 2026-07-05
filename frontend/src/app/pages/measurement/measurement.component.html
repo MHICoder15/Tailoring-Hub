@@ -1,0 +1,645 @@
+<p-toolbar class="mb-6">
+  <ng-template #start>
+    <p-button label="New Measurement" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
+    <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedProducts()"
+      [disabled]="!selectedProducts || !selectedProducts.length" />
+  </ng-template>
+
+  <ng-template #end>
+    <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
+  </ng-template>
+</p-toolbar>
+
+<p-table #dt [value]="measurementsList()" [rows]="10" [columns]="cols" [paginator]="true"
+  [globalFilterFields]="['name', 'bookingNumber', 'phoneNumber']" [tableStyle]="{ 'min-width': '75rem' }"
+  [(selection)]="selectedProducts" [rowHover]="true" dataKey="id"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} measurements" [showCurrentPageReport]="true"
+  [rowsPerPageOptions]="[10, 20, 30]">
+  <ng-template #caption>
+    <div class="flex items-center justify-between">
+      <div class="heading">
+        <h5 class="m-0">Measurements</h5>
+        <p>Customer measurement records</p>
+      </div>
+      <p-iconfield>
+        <p-inputicon class="pi pi-search" />
+        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+      </p-iconfield>
+    </div>
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="name" style="min-width:16rem">
+        Customer Name
+        <p-sortIcon field="name" />
+      </th>
+      <th pSortableColumn="bookingNumber" style="min-width: 8rem">
+        Booking #
+        <p-sortIcon field="bookingNumber" />
+      </th>
+      <th pSortableColumn="phoneNumber" style="min-width:10rem">
+        Phone
+        <p-sortIcon field="phoneNumber" />
+      </th>
+      <th pSortableColumn="dateOfBooking" style="min-width: 12rem">
+        Start Date
+        <p-sortIcon field="dateOfBooking" />
+      </th>
+      <th pSortableColumn="deliveryDate" style="min-width: 12rem">
+        Delivery Date
+        <p-sortIcon field="deliveryDate" />
+      </th>
+      <th pSortableColumn="totalCost" style="min-width: 8rem">
+        Total Cost
+        <p-sortIcon field="totalCost" />
+      </th>
+      <th pSortableColumn="remainingBalance" style="min-width: 8rem">
+        Balance
+        <p-sortIcon field="remainingBalance" />
+      </th>
+      <th style="min-width: 12rem">Actions</th>
+    </tr>
+  </ng-template>
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="9">
+        <div class="flex flex-col items-center justify-center py-8">
+          <i class="pi pi-inbox text-color-secondary mb-4" style="font-size: 2.5rem"></i>
+          <p class="text-lg font-semibold m-0 mb-2">No measurements yet</p>
+          <p class="text-color-secondary m-0">Record your first customer measurement to get started.</p>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template #body let-measurement>
+    <tr>
+      <td style="min-width: 16rem">{{ measurement.name }}</td>
+      <td style="min-width: 8rem"><p-tag [value]="measurement.bookingNumber" [rounded]="true"></p-tag></td>
+      <td style="min-width: 12rem">{{ measurement.phoneNumber }}</td>
+      <td>{{ measurement.dateOfBooking | date }}</td>
+      <td>{{ measurement.deliveryDate | date }}</td>
+      <td>Rs {{ measurement.totalCost | currency: 'PKR' : '' : '1.0-0' }}</td>
+      <td
+        [ngClass]="['tabular-nums', measurement.remainingBalance > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400']">
+        Rs {{ measurement.remainingBalance | currency: 'PKR' : '' : '1.0-0' }}</td>
+      <td>
+        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
+          (click)="editProduct(measurement)" />
+        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+          (click)="deleteProduct(measurement)" />
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog [(visible)]="productDialog" [style]="{ width: '800px' }"
+  [header]="isEditing ? 'Edit Measurement' : 'New Measurement'" [modal]="true">
+  <ng-template #content>
+    <!-- Toast Container (global) -->
+    <div id="toast-container" class="fixed top-5 right-5 z-9999 flex flex-col gap-2.5"></div>
+
+    <div class="max-w-5xl mx-auto">
+      <form [formGroup]="form">
+        <!-- ─── Stepper ─────────────────────────────────────────── -->
+        <div class="flex items-center overflow-x-auto pb-4">
+          @for (step of steps; track $index) {
+          <div class="flex items-center shrink-0">
+            <button type="button" class="flex items-center gap-2.5 cursor-pointer" [disabled]="$index > currentStep"
+              (click)="goToStep($index)" [class.opacity-50]="$index > currentStep">
+              <div class="step-circle" [class.active]="$index === currentStep" [class.completed]="$index < currentStep">
+                @if ($index < currentStep) { <i [class]="step.icon"></i> }
+                  @else { {{ $index + 1 }} }
+              </div>
+              <span class="text-sm font-medium hidden sm:inline transition-colors duration-300"
+                [class.text-gold]="$index === currentStep" [class.text-primary]="$index < currentStep"
+                [class.text-txt-muted]="$index > currentStep">
+                {{ step.title }}
+              </span>
+            </button>
+            @if (!$last) {
+            <div class="w-10 h-0.5 mx-3 bg-base-border transition-colors duration-300"
+              [class.bg-primary]="$index < currentStep"></div>
+            }
+          </div>
+          }
+        </div>
+
+        <!-- ─── Step 0: Customer Info ────────────────────────────── -->
+        @if (currentStep === 0) {
+        <div class="step-animate">
+          <div class="section-title py-2">
+            <i class="pi pi-user" style="font-size: 1.2rem;"></i>
+            <span class="font-semibold text-xl ml-2">Customer Information</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Name -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Customer Name <span>*</span></label>
+              <input pInputText type="text" formControlName="name" class="form-input" placeholder="Enter full name"
+                [class.ng-invalid.ng-touched]="hasError('name')">
+              @if (getError('name')) { <span class="error-msg">{{ getError('name')
+                }}</span> }
+            </div>
+
+            <!-- Booking Number -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Booking Number <span>*</span></label>
+              <input pInputText type="text" formControlName="bookingNumber" class="form-input"
+                placeholder="e.g. BK-2025-001" [class.ng-invalid.ng-touched]="hasError('bookingNumber')">
+              @if (getError('bookingNumber')) { <span class="error-msg">{{ getError('bookingNumber') }}</span> }
+            </div>
+
+            <!-- Phone -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Phone Number <span>*</span></label>
+              <input pInputText type="text" formControlName="phoneNumber" class="form-input"
+                placeholder="e.g. 0300-1234567" [class.ng-invalid.ng-touched]="hasError('phoneNumber')">
+              @if (getError('phoneNumber')) { <span class="error-msg">{{ getError('phoneNumber') }}</span> }
+            </div>
+
+            <!-- Date of Booking -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Date of Booking <span>*</span></label>
+              <input pInputText type="date" formControlName="dateOfBooking" class="form-input"
+                [class.ng-invalid.ng-touched]="hasError('dateOfBooking')">
+              @if (getError('dateOfBooking')) { <span class="error-msg">{{ getError('dateOfBooking') }}</span> }
+            </div>
+
+            <!-- Delivery Date -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Delivery Date <span>*</span></label>
+              <input pInputText type="date" formControlName="deliveryDate" class="form-input"
+                [class.ng-invalid.ng-touched]="hasError('deliveryDate')">
+              @if (getError('deliveryDate')) { <span class="error-msg">{{ getError('deliveryDate') }}</span> }
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- ─── Step 1: Kameez ──────────────────────────────────── -->
+        @if (currentStep === 1) {
+        <div class="step-animate">
+          <div class="section-title py-2">
+            <i class="pi pi-address-book" style="font-size: 1.2rem;"></i>
+            <span class="font-semibold text-xl ml-2">Kameez Measurements</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            @for (field of [
+            { name: 'kameezLength', label: 'Kameez Length' },
+            { name: 'sleeve', label: 'Sleeve Length' },
+            { name: 'shoulder', label: 'Shoulder Width' },
+            { name: 'neck', label: 'Neck Circumference' },
+            { name: 'chest', label: 'Chest Circumference' },
+            { name: 'waist', label: 'Waist Circumference' },
+            ]; track field.name) {
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">{{ field.label }} <span>*</span></label>
+              <div class="relative">
+                <input pInputText type="number" formControlName="{{ field.name }}" class="form-input pr-16 w-full"
+                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError(field.name)">
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+              </div>
+              @if (getError(field.name)) { <span class="error-msg">{{ getError(field.name) }}</span> }
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- ─── Step 2: Shalwar ─────────────────────────────────── -->
+        @if (currentStep === 2) {
+        <div class="step-animate">
+          <div class="section-title py-2">
+            <i class="pi pi-box" style="font-size: 1.2rem;"></i>
+            <span class="font-semibold text-xl ml-2">Shalwar Measurements</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Shalwar Length -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Shalwar Length <span>*</span></label>
+              <div class="relative">
+                <input pInputText type="number" formControlName="shalwarLength" class="form-input pr-16 w-full"
+                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('shalwarLength')">
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+              </div>
+              @if (getError('shalwarLength')) { <span class="error-msg">{{ getError('shalwarLength') }}</span> }
+            </div>
+
+            <!-- Ankle Opening -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Ankle Opening <span>*</span></label>
+              <div class="relative">
+                <input pInputText type="number" formControlName="ankleOpening" class="form-input pr-16 w-full"
+                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('ankleOpening')">
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+              </div>
+              @if (getError('ankleOpening')) { <span class="error-msg">{{ getError('ankleOpening') }}</span> }
+            </div>
+
+            <!-- Shalwar Pocket (Toggle) -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Shalwar Pocket <span>*</span></label>
+              <div class="flex items-center gap-3 pt-2">
+                <p-toggleswitch formControlName="shalwarPocket" class="w-full" />
+                <span class="text-sm">
+                  <span class="text-gold font-semibold">
+                    {{ form.get('shalwarPocket')?.value ? 'Yes' : 'No' }}
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Shalwar Waist -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Shalwar Waist <span>*</span></label>
+              <div class="relative">
+                <input pInputText type="number" formControlName="shalwarWaist" class="form-input pr-16 w-full"
+                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('shalwarWaist')">
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+              </div>
+              @if (getError('shalwarWaist')) { <span class="error-msg">{{ getError('shalwarWaist') }}</span> }
+              <span class="text-[0.7rem] text-txt-muted">Horizontal distance around the waistline</span>
+            </div>
+
+            <!-- Crotch Depth -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Crotch Depth <span>*</span></label>
+              <div class="relative">
+                <input pInputText type="number" formControlName="crotchDepth" class="form-input pr-16 w-full"
+                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('crotchDepth')">
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+              </div>
+              @if (getError('crotchDepth')) { <span class="error-msg">{{ getError('crotchDepth') }}</span> }
+              <span class="text-[0.7rem] text-txt-muted">Vertical distance from waistline to crotch</span>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- ─── Step 3: Stitching ───────────────────────────────── -->
+        @if (currentStep === 3) {
+        <div class="step-animate space-y-8">
+          <!-- Basic Stitching -->
+          <div>
+            <div class="section-title py-2">
+              <i class="pi pi-pencil" style="font-size: 1.2rem;"></i>
+              <span class="font-semibold text-xl ml-2">Basic Stitching</span>
+            </div>
+            <div class="section-title py-1">
+              <i class="pi pi-wrench" style="font-size: 1rem;"></i>
+              <span class="font-semibold text-xl ml-2">Types</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <!-- Stitching Type -->
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Stitching Type <span>*</span></label>
+                <p-select formControlName="stitchingType" [options]="stitchingTypes" placeholder="Select Stitching Type"
+                  [class.ng-invalid.ng-touched]="hasError('stitchingType')">
+                </p-select>
+                @if (getError('stitchingType')) { <span class="error-msg">{{ getError('stitchingType') }}</span> }
+              </div>
+
+              <!-- Waist Type -->
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Waist Type <span>*</span></label>
+                <p-select formControlName="waistType" [options]="waistTypes" placeholder="Select Waist Type"
+                  [class.ng-invalid.ng-touched]="hasError('waistType')">
+                </p-select>
+                @if (getError('waistType')) { <span class="error-msg">{{ getError('waistType') }}</span> }
+              </div>
+
+              <!-- Neck Type -->
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Neck Type <span>*</span></label>
+                <p-select formControlName="neckType" [options]="neckTypes" placeholder="Select Neck Type"
+                  [class.ng-invalid.ng-touched]="hasError('neckType')">
+                </p-select>
+                @if (getError('neckType')) { <span class="error-msg">{{ getError('neckType') }}</span> }
+              </div>
+            </div>
+          </div>
+
+          <!-- Pockets -->
+          <div>
+            <div class="section-title py-1">
+              <i class="pi pi-wrench" style="font-size: 1rem;"></i>
+              <span class="font-semibold text-xl ml-2">Pockets</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <!-- Front Pocket -->
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Front Pocket <span>*</span></label>
+                <p-select formControlName="frontPocket" [options]="pocketOptions" placeholder="Select Front Pocket"
+                  [class.ng-invalid.ng-touched]="hasError('frontPocket')">
+                </p-select>
+                @if (getError('frontPocket')) { <span class="error-msg">{{ getError('frontPocket') }}</span> }
+              </div>
+
+              <!-- Front Pocket Width (conditional) -->
+              @if (showPocketDimensions) {
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Front Pocket Width <span>*</span></label>
+                <div class="relative">
+                  <input pInputText type="number" formControlName="frontPocketWidth" class="form-input pr-16 w-full"
+                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('frontPocketWidth')">
+                  <span
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+                </div>
+                @if (getError('frontPocketWidth')) { <span class="error-msg">{{ getError('frontPocketWidth') }}</span> }
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Front Pocket Height <span>*</span></label>
+                <div class="relative">
+                  <input pInputText type="number" formControlName="frontPocketHeight" class="form-input pr-16 w-full"
+                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('frontPocketHeight')">
+                  <span
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+                </div>
+                @if (getError('frontPocketHeight')) { <span class="error-msg">{{ getError('frontPocketHeight') }}</span>
+                }
+              </div>
+              }
+
+              <!-- Side Pockets -->
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Side Pockets <span>*</span></label>
+                <p-select formControlName="sidePockets" [options]="pocketOptions" placeholder="Select Side Pockets"
+                  [class.ng-invalid.ng-touched]="hasError('sidePockets')">
+                </p-select>
+                @if (getError('sidePockets')) { <span class="error-msg">{{ getError('sidePockets') }}</span> }
+              </div>
+            </div>
+          </div>
+
+          <!-- Front Details -->
+          <div>
+            <div class="section-title py-1">
+              <i class="pi pi-wrench" style="font-size: 1rem;"></i>
+              <span class="font-semibold text-xl ml-2">Front Details</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Front Patti Length <span>*</span></label>
+                <div class="relative">
+                  <input pInputText type="number" formControlName="frontPattiLength" class="form-input pr-16 w-full"
+                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('frontPattiLength')">
+                  <span
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+                </div>
+                @if (getError('frontPattiLength')) { <span class="error-msg">{{ getError('frontPattiLength') }}</span> }
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Front Patti Width <span>*</span></label>
+                <div class="relative">
+                  <input pInputText type="number" formControlName="frontPattiWidth" class="form-input pr-16 w-full"
+                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('frontPattiWidth')">
+                  <span
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+                </div>
+                @if (getError('frontPattiWidth')) { <span class="error-msg">{{ getError('frontPattiWidth') }}</span> }
+              </div>
+            </div>
+          </div>
+
+          <!-- Sleeve & Armhole -->
+          <div>
+            <div class="section-title py-1">
+              <i class="pi pi-wrench" style="font-size: 1rem;"></i>
+              <span class="font-semibold text-xl ml-2">Sleeve & Armhole</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Armhole Width <span>*</span></label>
+                <div class="relative">
+                  <input pInputText type="number" formControlName="armholeWidth" class="form-input pr-16 w-full"
+                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('armholeWidth')">
+                  <span
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+                </div>
+                @if (getError('armholeWidth')) { <span class="error-msg">{{ getError('armholeWidth') }}</span> }
+                <span class="text-[0.7rem] text-txt-muted">Vertical: shoulder top to underarm</span>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Sleeve Width <span>*</span></label>
+                <div class="relative">
+                  <input pInputText type="number" formControlName="sleeveWidth" class="form-input pr-16 w-full"
+                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('sleeveWidth')">
+                  <span
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+                </div>
+                @if (getError('sleeveWidth')) { <span class="error-msg">{{ getError('sleeveWidth') }}</span> }
+                <span class="text-[0.7rem] text-txt-muted">Horizontal across sleeve at bicep</span>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Sleeve Type <span>*</span></label>
+                <p-select formControlName="sleeveType" [options]="sleeveTypes" placeholder="Select Sleeve Type"
+                  [class.ng-invalid.ng-touched]="hasError('sleeveType')">
+                </p-select>
+                @if (getError('sleeveType')) { <span class="error-msg">{{ getError('sleeveType') }}</span> }
+              </div>
+            </div>
+          </div>
+
+          <!-- Cuff Details -->
+          <div>
+            <div class="section-title py-1">
+              <i class="pi pi-wrench" style="font-size: 1rem;"></i>
+              <span class="font-semibold text-xl ml-2">Cuff Details</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Cuff Length <span>*</span></label>
+                <div class="relative">
+                  <input pInputText type="number" formControlName="cuffLength" class="form-input pr-16 w-full"
+                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('cuffLength')">
+                  <span
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+                </div>
+                @if (getError('cuffLength')) { <span class="error-msg">{{ getError('cuffLength') }}</span> }
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Cuff Width <span>*</span></label>
+                <div class="relative">
+                  <input pInputText type="number" formControlName="cuffWidth" class="form-input pr-16 w-full"
+                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('cuffWidth')">
+                  <span
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
+                </div>
+                @if (getError('cuffWidth')) { <span class="error-msg">{{ getError('cuffWidth') }}</span> }
+              </div>
+
+              <!-- Cuff Fit Toggle -->
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Cuff Fit <span>*</span></label>
+                <div class="flex items-center gap-3 pt-2">
+                  <p-toggleswitch formControlName="cuffFit" class="w-full" />
+                  <span class="text-sm">
+                    <span class="text-gold font-semibold">
+                      {{ form.get('cuffFit')?.value ? 'Tight' : 'Loose' }}
+                    </span>
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Cuff Style <span>*</span></label>
+                <p-select formControlName="cuffStyle" [options]="cuffStyles" placeholder="Select Cuff Style"
+                  [class.ng-invalid.ng-touched]="hasError('cuffStyle')">
+                </p-select>
+                @if (getError('cuffStyle')) { <span class="error-msg">{{ getError('cuffStyle') }}</span> }
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Button Hole Style <span>*</span></label>
+                <p-select formControlName="cuffButtonHoleStyle" [options]="buttonHoleStyles"
+                  placeholder="Select Button Hole Style"
+                  [class.ng-invalid.ng-touched]="hasError('cuffButtonHoleStyle')">
+                </p-select>
+                @if (getError('cuffButtonHoleStyle')) { <span class="error-msg">{{ getError('cuffButtonHoleStyle')
+                  }}</span> }
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Button Hole Type <span>*</span></label>
+                <p-select formControlName="cuffButtonHoleType" [options]="buttonHoleTypes"
+                  placeholder="Select Button Hole Type" [class.ng-invalid.ng-touched]="hasError('cuffButtonHoleType')">
+                </p-select>
+                @if (getError('cuffButtonHoleType')) { <span class="error-msg">{{ getError('cuffButtonHoleType')
+                  }}</span> }
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Cuff Patti Button <span>*</span></label>
+                <p-select formControlName="cuffPattiButton" [options]="cuffPattiButtons"
+                  placeholder="Select Cuff Patti Button" [class.ng-invalid.ng-touched]="hasError('cuffPattiButton')">
+                </p-select>
+                @if (getError('cuffPattiButton')) { <span class="error-msg">{{ getError('cuffPattiButton') }}</span> }
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <div class="section-title py-1">
+              <i class="pi pi-wrench" style="font-size: 1rem;"></i>
+              <span class="font-semibold text-xl ml-2">Additional Notes</span>
+            </div>
+            <div class="grid grid-cols-1 gap-5">
+              <div class="flex flex-col gap-1.5">
+                <label class="form-label">Description</label>
+                <textarea pTextarea formControlName="description" [autoResize]="true" rows="3" cols="30"
+                  placeholder="Any special instructions or notes..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- ─── Step 4: Expenses ────────────────────────────────── -->
+        @if (currentStep === 4) {
+        <div class="step-animate">
+          <div class="section-title py-2">
+            <i class="pi pi-wallet" style="font-size: 1.2rem;"></i>
+            <span class="font-semibold text-xl ml-2">Expenses</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Previous Balance -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Previous Balance <span>*</span></label>
+              <div class="relative">
+                <input pInputText type="number" formControlName="previousBalance" class="form-input pr-12 w-full"
+                  placeholder="0" min="0" step="1" [class.ng-invalid.ng-touched]="hasError('previousBalance')">
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">Rs.</span>
+              </div>
+              @if (getError('previousBalance')) { <span class="error-msg">{{ getError('previousBalance') }}</span> }
+              <span class="text-[0.7rem] text-txt-muted">Amount owed from previous orders</span>
+            </div>
+
+            <!-- Total Cost -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Total Cost <span>*</span></label>
+              <div class="relative">
+                <input pInputText type="number" formControlName="totalCost" class="form-input pr-12 w-full"
+                  placeholder="0" min="0" step="1" [class.ng-invalid.ng-touched]="hasError('totalCost')">
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">Rs.</span>
+              </div>
+              @if (getError('totalCost')) { <span class="error-msg">{{ getError('totalCost') }}</span> }
+              <span class="text-[0.7rem] text-txt-muted">Total for this order including stitching</span>
+            </div>
+
+            <!-- Advance Payment -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Advance Payment <span>*</span></label>
+              <div class="relative">
+                <input pInputText type="number" formControlName="advancePayment" class="form-input pr-12 w-full"
+                  placeholder="0" min="0" step="1" [class.ng-invalid.ng-touched]="hasError('advancePayment')">
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">Rs.</span>
+              </div>
+              @if (getError('advancePayment')) { <span class="error-msg">{{ getError('advancePayment') }}</span> }
+              <span class="text-[0.7rem] text-txt-muted">Upfront payment at booking</span>
+            </div>
+
+            <!-- Remaining Balance (auto-calculated) -->
+            <div class="flex flex-col gap-1.5">
+              <label class="form-label">Remaining Balance <span>*</span></label>
+              <div class="relative">
+                <input pInputText type="number" formControlName="remainingBalance" class="form-input pr-12 w-full"
+                  placeholder="0" [disabled]="true">
+                <span
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">Rs.</span>
+              </div>
+              <span class="text-[0.7rem] text-txt-muted">Auto-calculated</span>
+            </div>
+
+            <!-- Remarks -->
+            <div class="flex flex-col gap-1.5 sm:col-span-2">
+              <label class="form-label">Remarks</label>
+              <textarea pTextarea formControlName="remarks" [autoResize]="true" rows="3" cols="30"
+                placeholder="Payment notes or special remarks..."></textarea>
+            </div>
+          </div>
+        </div>
+        }
+      </form>
+    </div>
+  </ng-template>
+
+  <ng-template #footer>
+    <!-- ─── Step Navigation ──────────────────────────────────── -->
+    <div class="flex items-center justify-between w-full pt-5">
+      <p-button label="Previous" icon="pi pi-angle-left" *ngIf="!isFirstStep" (click)="prevStep()" />
+      <div *ngIf="isFirstStep"></div>
+      <div class="flex gap-3">
+        <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
+        @if (!isLastStep) {
+        <p-button label="Next" icon="pi pi-angle-right" (click)="nextStep()" />
+        } @else {
+        {{submitting}}
+        <!-- <p-button type="submit" [disabled]="submitting" (click)="onSubmit()"
+          [label]="submitting ? 'Saving...' : (isEditing ? 'Update Measurement' : 'Save Measurement')"
+          [icon]="submitting ? 'pi pi-spin pi-spinner' : (isEditing ? 'pi pi-pencil' : 'pi pi-check')">
+        </p-button> -->
+        <p-button type="button" [loading]="submitting" [disabled]="submitting" (click)="onSubmit()"
+          [label]="submitting ? 'Update Measurement' : 'Save Measurement'"
+          [icon]="submitting ? 'pi pi-pencil' : 'pi pi-check'">
+        </p-button>
+        }
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-confirmdialog [style]="{ width: '450px' }"></p-confirmdialog>
