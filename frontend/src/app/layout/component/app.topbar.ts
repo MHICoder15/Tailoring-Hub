@@ -45,17 +45,20 @@ import { MenuModule } from 'primeng/menu';
                     </button>
                     <app-configurator />
                 </div>
-                <div class="layout-topbar-menu">
-                  <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
-                      <i (click)="menu.toggle($event)" class="pi pi-user"></i>
+                <div class="relative">
+                    <button type="button" class="layout-topbar-action" (click)="menu.toggle($event)">
+                        <i class="pi pi-user"></i>
                     </button>
-                  </div>
-                  <p-menu #menu [popup]="true" [model]="profileMenuItems"></p-menu>
+                    <p-menu #menu [popup]="true" [model]="profileMenuItems" appendTo="body" styleClass="profile-menu"></p-menu>
                 </div>
             </div>
         </div>
-    </div>`
+    </div>`,
+  styles: [`
+    ::ng-deep .profile-menu {
+        margin-top: 10.5px !important;
+    }
+  `]
 })
 export class AppTopbar {
   items!: MenuItem[];
