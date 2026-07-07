@@ -1,8 +1,7 @@
 <p-toolbar class="mb-6">
   <ng-template #start>
-    <p-button label="New Measurement" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
-    <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedProducts()"
-      [disabled]="!selectedProducts || !selectedProducts.length" />
+    <p-button label="New Measurement" icon="pi pi-plus" severity="secondary" class="mr-2"
+      (onClick)="openNewMessageDialog()" />
   </ng-template>
 
   <ng-template #end>
@@ -12,9 +11,8 @@
 
 <p-table #dt [value]="measurementsList()" [rows]="10" [columns]="cols" [paginator]="true"
   [globalFilterFields]="['name', 'bookingNumber', 'phoneNumber']" [tableStyle]="{ 'min-width': '75rem' }"
-  [(selection)]="selectedProducts" [rowHover]="true" dataKey="id"
-  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} measurements" [showCurrentPageReport]="true"
-  [rowsPerPageOptions]="[10, 20, 30]">
+  [rowHover]="true" dataKey="id" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} measurements"
+  [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 20, 30]">
   <ng-template #caption>
     <div class="flex items-center justify-between">
       <div class="heading">
@@ -50,6 +48,10 @@
         <p-sortIcon field="deliveryDate" />
       </th>
       <th pSortableColumn="totalCost" style="min-width: 8rem">
+        Previous
+        <p-sortIcon field="totalCost" />
+      </th>
+      <th pSortableColumn="totalCost" style="min-width: 8rem">
         Total Cost
         <p-sortIcon field="totalCost" />
       </th>
@@ -73,39 +75,38 @@
   </ng-template>
   <ng-template #body let-measurement>
     <tr>
-      <td style="min-width: 16rem">{{ measurement.name }}</td>
+      <td style="min-width: 10rem">{{ measurement.name }}</td>
       <td style="min-width: 8rem"><p-tag [value]="measurement.bookingNumber" [rounded]="true"></p-tag></td>
-      <td style="min-width: 12rem">{{ measurement.phoneNumber }}</td>
+      <td style="min-width: 10rem">{{ measurement.phoneNumber }}</td>
       <td>{{ measurement.dateOfBooking | date }}</td>
       <td>{{ measurement.deliveryDate | date }}</td>
+      <td>Rs {{ measurement.previousBalance | currency: 'PKR' : '' : '1.0-0' }}</td>
       <td>Rs {{ measurement.totalCost | currency: 'PKR' : '' : '1.0-0' }}</td>
       <td
         [ngClass]="['tabular-nums', measurement.remainingBalance > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400']">
         Rs {{ measurement.remainingBalance | currency: 'PKR' : '' : '1.0-0' }}</td>
       <td>
         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
-          (click)="editProduct(measurement)" />
+          (click)="editMeasurement(measurement)" />
         <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
-          (click)="deleteProduct(measurement)" />
+          (click)="deleteMeasurement(measurement)" />
       </td>
     </tr>
   </ng-template>
 </p-table>
 
-<p-dialog [(visible)]="productDialog" [style]="{ width: '800px' }"
+<p-dialog [(visible)]="measurementDialog" [style]="{ width: '800px' }"
   [header]="isEditing ? 'Edit Measurement' : 'New Measurement'" [modal]="true">
   <ng-template #content>
-    <!-- Toast Container (global) -->
-    <div id="toast-container" class="fixed top-5 right-5 z-9999 flex flex-col gap-2.5"></div>
-
     <div class="max-w-5xl mx-auto">
       <form [formGroup]="form">
         <!-- ─── Stepper ─────────────────────────────────────────── -->
         <div class="flex items-center overflow-x-auto pb-4">
           @for (step of steps; track $index) {
           <div class="flex items-center shrink-0">
-            <button type="button" class="flex items-center gap-2.5 cursor-pointer" [disabled]="$index > currentStep"
-              (click)="goToStep($index)" [class.opacity-50]="$index > currentStep">
+            <button type="button" class="flex items-center gap-2.5 cursor-pointer"
+              [disabled]="isEditing ? false : $index > currentStep" (click)="goToStep($index)"
+              [class.opacity-50]="$index > currentStep">
               <div class="step-circle" [class.active]="$index === currentStep" [class.completed]="$index < currentStep">
                 @if ($index < currentStep) { <i [class]="step.icon"></i> }
                   @else { {{ $index + 1 }} }
@@ -135,7 +136,7 @@
             <!-- Name -->
             <div class="flex flex-col gap-1.5">
               <label class="form-label">Customer Name <span>*</span></label>
-              <input pInputText type="text" formControlName="name" class="form-input" placeholder="Enter full name"
+              <input pInputText type="text" formControlName="name" class="form-input" placeholder="Enter customer name"
                 [class.ng-invalid.ng-touched]="hasError('name')">
               @if (getError('name')) { <span class="error-msg">{{ getError('name')
                 }}</span> }
@@ -152,7 +153,7 @@
             <!-- Phone -->
             <div class="flex flex-col gap-1.5">
               <label class="form-label">Phone Number <span>*</span></label>
-              <input pInputText type="text" formControlName="phoneNumber" class="form-input"
+              <input pInputText type="text" formControlName="phoneNumber" class="form-input" pInputMask="9999-9999999"
                 placeholder="e.g. 0300-1234567" [class.ng-invalid.ng-touched]="hasError('phoneNumber')">
               @if (getError('phoneNumber')) { <span class="error-msg">{{ getError('phoneNumber') }}</span> }
             </div>
@@ -160,16 +161,16 @@
             <!-- Date of Booking -->
             <div class="flex flex-col gap-1.5">
               <label class="form-label">Date of Booking <span>*</span></label>
-              <input pInputText type="date" formControlName="dateOfBooking" class="form-input"
-                [class.ng-invalid.ng-touched]="hasError('dateOfBooking')">
+              <p-datepicker formControlName="dateOfBooking" [iconDisplay]="'input'" [showIcon]="true"
+                inputId="dateOfBooking" [class.ng-invalid.ng-touched]="hasError('dateOfBooking')" appendTo="body" />
               @if (getError('dateOfBooking')) { <span class="error-msg">{{ getError('dateOfBooking') }}</span> }
             </div>
 
             <!-- Delivery Date -->
             <div class="flex flex-col gap-1.5">
               <label class="form-label">Delivery Date <span>*</span></label>
-              <input pInputText type="date" formControlName="deliveryDate" class="form-input"
-                [class.ng-invalid.ng-touched]="hasError('deliveryDate')">
+              <p-datepicker formControlName="deliveryDate" [iconDisplay]="'input'" [showIcon]="true"
+                inputId="deliveryDate" [class.ng-invalid.ng-touched]="hasError('deliveryDate')" appendTo="body" />
               @if (getError('deliveryDate')) { <span class="error-msg">{{ getError('deliveryDate') }}</span> }
             </div>
           </div>
@@ -196,7 +197,7 @@
               <label class="form-label">{{ field.label }} <span>*</span></label>
               <div class="relative">
                 <input pInputText type="number" formControlName="{{ field.name }}" class="form-input pr-16 w-full"
-                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError(field.name)">
+                  placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError(field.name)">
                 <span
                   class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
               </div>
@@ -220,7 +221,7 @@
               <label class="form-label">Shalwar Length <span>*</span></label>
               <div class="relative">
                 <input pInputText type="number" formControlName="shalwarLength" class="form-input pr-16 w-full"
-                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('shalwarLength')">
+                  placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('shalwarLength')">
                 <span
                   class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
               </div>
@@ -232,7 +233,7 @@
               <label class="form-label">Ankle Opening <span>*</span></label>
               <div class="relative">
                 <input pInputText type="number" formControlName="ankleOpening" class="form-input pr-16 w-full"
-                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('ankleOpening')">
+                  placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('ankleOpening')">
                 <span
                   class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
               </div>
@@ -257,7 +258,7 @@
               <label class="form-label">Shalwar Waist <span>*</span></label>
               <div class="relative">
                 <input pInputText type="number" formControlName="shalwarWaist" class="form-input pr-16 w-full"
-                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('shalwarWaist')">
+                  placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('shalwarWaist')">
                 <span
                   class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
               </div>
@@ -270,7 +271,7 @@
               <label class="form-label">Crotch Depth <span>*</span></label>
               <div class="relative">
                 <input pInputText type="number" formControlName="crotchDepth" class="form-input pr-16 w-full"
-                  placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('crotchDepth')">
+                  placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('crotchDepth')">
                 <span
                   class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
               </div>
@@ -346,7 +347,7 @@
                 <label class="form-label">Front Pocket Width <span>*</span></label>
                 <div class="relative">
                   <input pInputText type="number" formControlName="frontPocketWidth" class="form-input pr-16 w-full"
-                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('frontPocketWidth')">
+                    placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('frontPocketWidth')">
                   <span
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
                 </div>
@@ -357,7 +358,7 @@
                 <label class="form-label">Front Pocket Height <span>*</span></label>
                 <div class="relative">
                   <input pInputText type="number" formControlName="frontPocketHeight" class="form-input pr-16 w-full"
-                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('frontPocketHeight')">
+                    placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('frontPocketHeight')">
                   <span
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
                 </div>
@@ -388,7 +389,7 @@
                 <label class="form-label">Front Patti Length <span>*</span></label>
                 <div class="relative">
                   <input pInputText type="number" formControlName="frontPattiLength" class="form-input pr-16 w-full"
-                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('frontPattiLength')">
+                    placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('frontPattiLength')">
                   <span
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
                 </div>
@@ -399,7 +400,7 @@
                 <label class="form-label">Front Patti Width <span>*</span></label>
                 <div class="relative">
                   <input pInputText type="number" formControlName="frontPattiWidth" class="form-input pr-16 w-full"
-                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('frontPattiWidth')">
+                    placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('frontPattiWidth')">
                   <span
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
                 </div>
@@ -419,7 +420,7 @@
                 <label class="form-label">Armhole Width <span>*</span></label>
                 <div class="relative">
                   <input pInputText type="number" formControlName="armholeWidth" class="form-input pr-16 w-full"
-                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('armholeWidth')">
+                    placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('armholeWidth')">
                   <span
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
                 </div>
@@ -431,7 +432,7 @@
                 <label class="form-label">Sleeve Width <span>*</span></label>
                 <div class="relative">
                   <input pInputText type="number" formControlName="sleeveWidth" class="form-input pr-16 w-full"
-                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('sleeveWidth')">
+                    placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('sleeveWidth')">
                   <span
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
                 </div>
@@ -440,8 +441,8 @@
               </div>
 
               <div class="flex flex-col gap-1.5">
-                <label class="form-label">Sleeve Type <span>*</span></label>
-                <p-select formControlName="sleeveType" [options]="sleeveTypes" placeholder="Select Sleeve Type"
+                <label class="form-label">Cuff Type <span>*</span></label>
+                <p-select formControlName="sleeveType" [options]="sleeveTypes" placeholder="Select Cuff Type"
                   [class.ng-invalid.ng-touched]="hasError('sleeveType')">
                 </p-select>
                 @if (getError('sleeveType')) { <span class="error-msg">{{ getError('sleeveType') }}</span> }
@@ -460,7 +461,7 @@
                 <label class="form-label">Cuff Length <span>*</span></label>
                 <div class="relative">
                   <input pInputText type="number" formControlName="cuffLength" class="form-input pr-16 w-full"
-                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('cuffLength')">
+                    placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('cuffLength')">
                   <span
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
                 </div>
@@ -471,7 +472,7 @@
                 <label class="form-label">Cuff Width <span>*</span></label>
                 <div class="relative">
                   <input pInputText type="number" formControlName="cuffWidth" class="form-input pr-16 w-full"
-                    placeholder="0" step="0.5" min="0" [class.ng-invalid.ng-touched]="hasError('cuffWidth')">
+                    placeholder="0" step="0.25" min="0" [class.ng-invalid.ng-touched]="hasError('cuffWidth')">
                   <span
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-txt-muted pointer-events-none">inches</span>
                 </div>
@@ -520,10 +521,14 @@
 
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">Cuff Patti Button <span>*</span></label>
-                <p-select formControlName="cuffPattiButton" [options]="cuffPattiButtons"
-                  placeholder="Select Cuff Patti Button" [class.ng-invalid.ng-touched]="hasError('cuffPattiButton')">
-                </p-select>
-                @if (getError('cuffPattiButton')) { <span class="error-msg">{{ getError('cuffPattiButton') }}</span> }
+                <div class="flex items-center gap-3 pt-2">
+                  <p-toggleswitch formControlName="cuffPattiButton" class="w-full" />
+                  <span class="text-sm">
+                    <span class="text-gold font-semibold">
+                      {{ form.get('cuffPattiButton')?.value ? 'Yes' : 'No' }}
+                    </span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -620,21 +625,16 @@
   <ng-template #footer>
     <!-- ─── Step Navigation ──────────────────────────────────── -->
     <div class="flex items-center justify-between w-full pt-5">
-      <p-button label="Previous" icon="pi pi-angle-left" *ngIf="!isFirstStep" (click)="prevStep()" />
-      <div *ngIf="isFirstStep"></div>
+      @if (!isFirstStep) { <p-button label="Previous" icon="pi pi-angle-left" (click)="prevStep()" /> }
+      @if (isFirstStep) { <div></div> }
       <div class="flex gap-3">
-        <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
+        <p-button label="Cancel" icon="pi pi-times" text (click)="hideMessageDialog()" />
         @if (!isLastStep) {
         <p-button label="Next" icon="pi pi-angle-right" (click)="nextStep()" />
         } @else {
-        {{submitting}}
-        <!-- <p-button type="submit" [disabled]="submitting" (click)="onSubmit()"
-          [label]="submitting ? 'Saving...' : (isEditing ? 'Update Measurement' : 'Save Measurement')"
-          [icon]="submitting ? 'pi pi-spin pi-spinner' : (isEditing ? 'pi pi-pencil' : 'pi pi-check')">
-        </p-button> -->
-        <p-button type="button" [loading]="submitting" [disabled]="submitting" (click)="onSubmit()"
-          [label]="submitting ? 'Update Measurement' : 'Save Measurement'"
-          [icon]="submitting ? 'pi pi-pencil' : 'pi pi-check'">
+        <p-button type="button" [loading]="isSubmitted" [disabled]="isSubmitted" (click)="onSubmit()"
+          [label]="isEditing ? 'Update Measurement' : 'Save Measurement'"
+          [icon]="isSubmitted ? 'pi pi-spin pi-spinner' : (isEditing ? 'pi pi-pencil' : 'pi pi-check')">
         </p-button>
         }
       </div>
@@ -643,3 +643,4 @@
 </p-dialog>
 
 <p-confirmdialog [style]="{ width: '450px' }"></p-confirmdialog>
+<p-toast />

@@ -13,7 +13,7 @@ export class ApiInterceptorsService implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     // const apiToken = localStorage.getItem('accessToken');
-    const apiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZTY2MjgyNGRkNmFjMjcyYjIyMWZlOSIsImlhdCI6MTc4MzI0NjQ1NSwiZXhwIjoxNzgzMzMyODU1fQ.FvSp8GCNN-vH5tBoiZx8ahZVFJ29FmIF2nK_f31vMok";
+    const apiToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ZTY2MjgyNGRkNmFjMjcyYjIyMWZlOSIsImlhdCI6MTc4MzQzNjI5OSwiZXhwIjoxNzgzNTIyNjk5fQ.-ZvxnyL_OETVgI2mDSfWFhckAC6uFEeLGV49RJBplq8";
     console.log("🚀 ~ intercept ~ apiToken:", apiToken)
     if (apiToken) {
       const clonedReq = req.clone({

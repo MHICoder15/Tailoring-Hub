@@ -44,7 +44,7 @@ const measurementSchema = new mongoose.Schema<Measurement>({
   cuffStyle: { type: String, required: [true, 'Cuff round or straight is required'] }, // Cuff style is whether the cuff should be round or straight
   cuffButtonHoleStyle: { type: String, required: [true, 'Cuff button hole style is required'] }, // Cuff button hole style is whether the button hole on the cuff should be horizontal or vertical
   cuffButtonHoleType: { type: String, required: [true, 'Cuff button hole type is required'] }, // Cuff button hole type is whether the button hole on the cuff should be single or double sides
-  cuffPattiButton: { type: String, required: [true, 'Cuff patti button is required'] }, //
+  cuffPattiButton: { type: Boolean, required: [true, 'Cuff patti button is required'] }, //
   description: { type: String, trim: true },
 
   // Expenses (All Required)

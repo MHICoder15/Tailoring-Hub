@@ -44,7 +44,7 @@ export interface Measurement {
   cuffStyle: string;
   cuffButtonHoleStyle: string;
   cuffButtonHoleType: string;
-  cuffPattiButton: string;
+  cuffPattiButton: boolean;
   description?: string;
 
   // Expenses

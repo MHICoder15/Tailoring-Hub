@@ -4,27 +4,23 @@ import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
-import { RatingModule } from 'primeng/rating';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
-import { RadioButtonModule } from 'primeng/radiobutton';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { Product, ProductService } from '@/app/pages/service/product.service';
 import { MeasurementService } from '@/app/core/services/measurement.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ToastService } from '@/app/core/services/toast.service';
-import { combineLatest, Subject, takeUntil } from 'rxjs';
-import { STITCHING_TYPES, WAIST_TYPES, NECK_TYPES, POCKET_OPTIONS, SLEEVE_TYPES, CUFF_STYLES, BUTTON_HOLE_STYLES, BUTTON_HOLE_TYPES, CUFF_PATTI_BUTTONS, } from '@/app/core/models/measurement.model';
+import { combineLatest, Subject, Subscription, startWith, takeUntil } from 'rxjs';
+import { STITCHING_TYPES, WAIST_TYPES, NECK_TYPES, POCKET_OPTIONS, SLEEVE_TYPES, CUFF_STYLES, BUTTON_HOLE_STYLES, BUTTON_HOLE_TYPES, Measurement, } from '@/app/core/models/measurement.model';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { MessageModule } from 'primeng/message';
+import { InputMaskModule } from 'primeng/inputmask';
+import { DatePickerModule } from 'primeng/datepicker';
 
 interface Column {
   field: string;
@@ -44,46 +40,40 @@ interface ExportColumn {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule,
     TableModule,
     ButtonModule,
-    RippleModule,
     ToastModule,
     ToolbarModule,
-    RatingModule,
     InputTextModule,
     TextareaModule,
     SelectModule,
-    RadioButtonModule,
-    InputNumberModule,
     DialogModule,
     TagModule,
     InputIconModule,
     IconFieldModule,
     ConfirmDialogModule,
-    ToggleSwitchModule
+    ToggleSwitchModule,
+    MessageModule,
+    InputMaskModule,
+    DatePickerModule
   ],
   templateUrl: './measurement.component.html',
   styleUrls: ['./measurement.component.css'],
-  providers: [MessageService, ProductService, ConfirmationService]
+  providers: [MessageService, ConfirmationService]
 })
 export class MeasurementComponent implements OnInit, OnDestroy {
-  productDialog: boolean = false;
-  product!: Product;
-  selectedProducts!: Product[] | null;
-  submitted: boolean = false;
-  statuses!: any[];
+  measurementDialog: boolean = false;
   @ViewChild('dt') dt!: Table;
   exportColumns!: ExportColumn[];
   cols!: Column[];
-
   measurementsList = signal<any[]>([]);
-
   form!: FormGroup;
+  private valueChangesSub?: Subscription;
   currentStep = 0;
   isEditing = false;
-  editingId: string | null = null;
-  submitting: boolean = false;
+  editingId?: string = '';
+  isSubmitted: boolean = false;
+  measurement!: Measurement
 
   // Step definitions
   readonly steps = [
@@ -102,12 +92,12 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     [
       'stitchingType', 'waistType', 'neckType', 'frontPocket',
       'frontPocketWidth', 'frontPocketHeight', 'sidePockets',
-      'frontPattiLength', 'frontPattiWidth', 'ArmholeWidth',
+      'frontPattiLength', 'frontPattiWidth', 'armholeWidth',
       'sleeveWidth', 'sleeveType', 'cuffLength', 'cuffWidth',
       'cuffFit', 'cuffStyle', 'cuffButtonHoleStyle',
       'cuffButtonHoleType', 'cuffPattiButton',
     ],
-    ['PreviousBalance', 'TotalCost', 'AdvancePayment', 'RemainingBalance'],
+    ['previousBalance', 'totalCost', 'advancePayment', 'remainingBalance'],
   ];
 
   // Select options
@@ -119,7 +109,6 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   readonly cuffStyles = CUFF_STYLES;
   readonly buttonHoleStyles = BUTTON_HOLE_STYLES;
   readonly buttonHoleTypes = BUTTON_HOLE_TYPES;
-  readonly cuffPattiButtons = CUFF_PATTI_BUTTONS;
 
   // Field labels for error messages
   readonly labels: Record<string, string> = {
@@ -150,7 +139,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     frontPattiWidth: 'Front patti width',
     armholeWidth: 'Armhole width',
     sleeveWidth: 'Sleeve width',
-    sleeveType: 'Sleeve type',
+    sleeveType: 'Cuff type',
     cuffLength: 'Cuff length',
     cuffWidth: 'Cuff width',
     cuffFit: 'Cuff fit',
@@ -171,17 +160,12 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     private confirmationService: ConfirmationService,
     private measurementService: MeasurementService,
     private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private toast: ToastService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
     this.loadMeasurementData();
     this.initForm();
-    this.setupValueChanges();
-    this.checkEditMode();
   }
 
   ngOnDestroy(): void {
@@ -196,7 +180,6 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   loadMeasurementData() {
     this.measurementsList.set([]);
     this.measurementService.getMeasurements().subscribe((resp) => {
-      console.log("🚀 ~ MeasurementComponent ~ loadMeasurementData ~ resp:", resp)
       if (resp.success === true) {
         this.measurementsList.set(resp.data);
       }
@@ -206,8 +189,9 @@ export class MeasurementComponent implements OnInit, OnDestroy {
       { field: 'name', header: 'Name' },
       { field: 'bookingNumber', header: 'Booking Number' },
       { field: 'phoneNumber', header: 'Phone Number' },
-      { field: 'TotalCost', header: 'Total Cost' },
-      { field: 'RemainingBalance', header: 'Remaining Balance' }
+      { field: 'previousBalance', header: 'Previous Balance' },
+      { field: 'totalCost', header: 'Total Cost' },
+      { field: 'remainingBalance', header: 'Remaining Balance' }
     ];
 
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
@@ -225,46 +209,31 @@ export class MeasurementComponent implements OnInit, OnDestroy {
       name: ['', [Validators.required]],
       bookingNumber: [{ value: '', disabled: false }, [Validators.required]],
       phoneNumber: ['', [Validators.required]],
-      dateOfBooking: [this.toDateString(new Date()), [Validators.required]],
-      deliveryDate: [this.toDateString(new Date(new Date().setDate(new Date().getDate() + 14))), [Validators.required]],
-
-      // Kameez
-      kameezLength: [38, [Validators.required, Validators.min(0)]],
-      sleeve: [22, [Validators.required, Validators.min(0)]],
-      shoulder: [18, [Validators.required, Validators.min(0)]],
-      neck: [15, [Validators.required, Validators.min(0)]],
-      chest: [23, [Validators.required, Validators.min(0)]],
-      waist: [24, [Validators.required, Validators.min(0)]],
-
-      // Shalwar
-      shalwarLength: [37, [Validators.required, Validators.min(0)]],
-      ankleOpening: [9, [Validators.required, Validators.min(0)]],
-      shalwarPocket: [false, [Validators.required]],
-      shalwarWaist: [23, [Validators.required, Validators.min(0)]],
-      crotchDepth: [19, [Validators.required, Validators.min(0)]],
+      dateOfBooking: [new Date(), [Validators.required]],
+      deliveryDate: [new Date(new Date().setDate(new Date().getDate() + 14)), [Validators.required]],
 
       // // Kameez
-      // kameezLength: [null, [Validators.required, Validators.min(0)]],
-      // sleeve: [null, [Validators.required, Validators.min(0)]],
-      // shoulder: [null, [Validators.required, Validators.min(0)]],
-      // neck: [null, [Validators.required, Validators.min(0)]],
-      // chest: [null, [Validators.required, Validators.min(0)]],
-      // waist: [null, [Validators.required, Validators.min(0)]],
+      kameezLength: [null, [Validators.required, Validators.min(0)]],
+      sleeve: [null, [Validators.required, Validators.min(0)]],
+      shoulder: [null, [Validators.required, Validators.min(0)]],
+      neck: [null, [Validators.required, Validators.min(0)]],
+      chest: [null, [Validators.required, Validators.min(0)]],
+      waist: [null, [Validators.required, Validators.min(0)]],
 
-      // // Shalwar
-      // shalwarLength: [null, [Validators.required, Validators.min(0)]],
-      // ankleOpening: [null, [Validators.required, Validators.min(0)]],
-      // shalwarPocket: [false, [Validators.required]],
-      // shalwarWaist: [null, [Validators.required, Validators.min(0)]],
-      // crotchDepth: [null, [Validators.required, Validators.min(0)]],
+      // Shalwar
+      shalwarLength: [null, [Validators.required, Validators.min(0)]],
+      ankleOpening: [null, [Validators.required, Validators.min(0)]],
+      shalwarPocket: [false, [Validators.required]],
+      shalwarWaist: [null, [Validators.required, Validators.min(0)]],
+      crotchDepth: [null, [Validators.required, Validators.min(0)]],
 
       // Stitching
       stitchingType: ['Single', [Validators.required]],
       waistType: ['Round', [Validators.required]],
       neckType: ['Collar', [Validators.required]],
       frontPocket: ['Single', [Validators.required]],
-      frontPocketWidth: [{ value: 5, disabled: true }, [Validators.required, Validators.min(0)]],
-      frontPocketHeight: [{ value: 5.5, disabled: true }, [Validators.required, Validators.min(0)]],
+      frontPocketWidth: [5, [Validators.required, Validators.min(0)]],
+      frontPocketHeight: [5.5, [Validators.required, Validators.min(0)]],
       sidePockets: ['Single', [Validators.required]],
       frontPattiLength: [13, [Validators.required, Validators.min(0)]],
       frontPattiWidth: [1, [Validators.required, Validators.min(0)]],
@@ -277,85 +246,138 @@ export class MeasurementComponent implements OnInit, OnDestroy {
       cuffStyle: ['Round', [Validators.required]],
       cuffButtonHoleStyle: ['Horizontal', [Validators.required]],
       cuffButtonHoleType: ['Double Side', [Validators.required]],
-      cuffPattiButton: ['None', [Validators.required]],
+      cuffPattiButton: [false, [Validators.required]],
       description: [''],
 
       // Expenses
-      previousBalance: [0, [Validators.required, Validators.min(0)]],
-      totalCost: [0, [Validators.required, Validators.min(0)]],
-      advancePayment: [0, [Validators.required, Validators.min(0)]],
+      previousBalance: [null, [Validators.required, Validators.min(0)]],
+      totalCost: [null, [Validators.required, Validators.min(0)]],
+      advancePayment: [null, [Validators.required, Validators.min(0)]],
       remainingBalance: [{ value: 0, disabled: true }],
       remarks: [''],
     });
+    this.setupValueChanges();
+  }
+
+  // ─── Submit ──────────────────────────────────────────────────────
+
+  onSubmit(): void {
+    if (!this.validateAll()) return;
+
+    this.isSubmitted = true;
+    this.cdr.markForCheck();
+    const formValue = this.form.getRawValue(); // includes disabled controls
+
+    if (this.isEditing && this.editingId) {
+      this.measurementService.updateMeasurement(formValue, this.editingId).subscribe({
+        next: (resp) => {
+          this.messageService.add({ severity: 'success', summary: 'Success Message', detail: resp.message || 'Measurement updated successfully' });
+          this.hideMessageDialog();
+          this.loadMeasurementData();
+          this.currentStep = 0;
+          this.form.reset();
+          this.initForm();
+        },
+        error: (err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error Message', detail: err.error.message || 'Failed to update measurement' });
+          this.isSubmitted = false;
+          this.cdr.markForCheck();
+        },
+      });
+    } else {
+      this.measurementService.createMeasurement(formValue).subscribe({
+        next: (resp) => {
+          this.messageService.add({ severity: 'success', summary: 'Success Message', detail: resp.message || 'Measurement saved successfully' });
+          this.hideMessageDialog();
+          this.loadMeasurementData();
+          this.currentStep = 0;
+          this.form.reset();
+          this.initForm();
+        },
+        error: (err) => {
+          this.messageService.add({ severity: 'error', summary: 'Error Message', detail: err.error.message || 'Failed to save measurement' });
+          this.isSubmitted = false;
+          this.cdr.markForCheck();
+        },
+      });
+    }
+  }
+
+  editMeasurement(measurement: Measurement) {
+    this.measurement = { ...measurement };
+    const patchedValues = {
+      ...measurement,
+      dateOfBooking: measurement.dateOfBooking ? new Date(measurement.dateOfBooking) : null,
+      deliveryDate: measurement.deliveryDate ? new Date(measurement.deliveryDate) : null
+    };
+    this.form.patchValue(patchedValues);
+    this.measurementDialog = true;
+    this.isEditing = true;
+    this.editingId = measurement._id;
+    this.currentStep = 4;
+  }
+
+  deleteMeasurement(measurement: Measurement) {
+    const deletingId = measurement._id;
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete the measurement?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        try {
+          if (deletingId) {
+            this.measurementService.deleteMeasurement(deletingId).subscribe({
+              next: (resp) => {
+                this.messageService.add({ severity: 'success', summary: 'Success Message', detail: resp.message || 'Measurement deleted successfully' });
+                this.loadMeasurementData();
+              },
+              error: (err) => {
+                this.messageService.add({ severity: 'error', summary: 'Error Message', detail: err.error.message || 'Failed to delete measurement' });
+                return;
+              },
+            });
+          }
+        } catch {
+          this.messageService.add({ severity: 'error', summary: 'Error Message', detail: 'Something went wrong. Please try again.' });
+        }
+      }
+    });
+  }
+
+  openNewMessageDialog() {
+    this.currentStep = 0;
+    this.form.reset();
+    this.initForm();
+    this.isEditing = false;
+    this.isSubmitted = false;
+    this.measurementDialog = true;
+  }
+
+  hideMessageDialog() {
+    this.measurementDialog = false;
+    this.isSubmitted = false;
   }
 
   // ─── Reactive Value Changes ──────────────────────────────────────
 
   private setupValueChanges(): void {
+    // Unsubscribe from previous subscription to avoid leaks
+    this.valueChangesSub?.unsubscribe();
+
     // Auto-calculate RemainingBalance
-    combineLatest([
-      this.form.get('previousBalance')!.valueChanges,
-      this.form.get('totalCost')!.valueChanges,
-      this.form.get('advancePayment')!.valueChanges,
-    ])
+    const prev$ = this.form.get('previousBalance')!.valueChanges.pipe(startWith(this.form.get('previousBalance')!.value));
+    const total$ = this.form.get('totalCost')!.valueChanges.pipe(startWith(this.form.get('totalCost')!.value));
+    const advance$ = this.form.get('advancePayment')!.valueChanges.pipe(startWith(this.form.get('advancePayment')!.value));
+
+    this.valueChangesSub = combineLatest([prev$, total$, advance$])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([prev, total, advance]) => {
         const remaining = Math.max(0, (prev || 0) + (total || 0) - (advance || 0));
         this.form.get('remainingBalance')?.setValue(remaining, { emitEvent: false });
       });
-
-    // Conditional: show/hide front pocket dimensions
-    this.form
-      .get('frontPocket')!
-      .valueChanges.pipe(takeUntil(this.destroy$))
-      .subscribe((val) => {
-        const show = val && val !== 'None';
-        const fwCtrl = this.form.get('frontPocketWidth')!;
-        const fhCtrl = this.form.get('frontPocketHeight')!;
-
-        if (show) {
-          fwCtrl.enable({ emitEvent: false });
-          fhCtrl.enable({ emitEvent: false });
-        } else {
-          fwCtrl.disable({ emitEvent: false });
-          fhCtrl.disable({ emitEvent: false });
-          fwCtrl.setValue(0, { emitEvent: false });
-          fhCtrl.setValue(0, { emitEvent: false });
-        }
-      });
-  }
-
-  // ─── Edit Mode ───────────────────────────────────────────────────
-
-  private checkEditMode(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.isEditing = true;
-      this.editingId = id;
-      const measurement = this.measurementService.getById(id);
-      if (measurement !== null && measurement !== undefined) {
-        this.form.patchValue(measurement);
-        // Re-trigger the async validator with the exclude ID
-        // this.form.get('bookingNumber')!.setAsyncValidators(
-        //   uniqueBookingNumber(this.measurementService, id)
-        // );
-        this.form.get('bookingNumber')!.updateValueAndValidity();
-      } else {
-        this.toast.show('Measurement not found', 'error');
-        this.router.navigate(['/']);
-      }
-    } else {
-      // New mode — set defaults
-      // this.form.get('bookingNumber')?.setValue(uniqueBookingNumber(this.measurementService));
-      this.form.get('dateOfBooking')?.setValue(this.toDateString(new Date()));
-      const delivery = new Date();
-      delivery.setDate(delivery.getDate() + 14);
-      this.form.get('deliveryDate')?.setValue(this.toDateString(delivery));
-    }
   }
 
   // ─── Step Navigation ─────────────────────────────────────────────
-
   get step(): number {
     return this.currentStep;
   }
@@ -383,6 +405,10 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   }
 
   goToStep(index: number): void {
+    if (this.isEditing) {
+      this.currentStep = index;
+      return;
+    }
     // Only allow going to completed steps or the next one
     if (index <= this.currentStep) {
       this.currentStep = index;
@@ -408,7 +434,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     });
 
     if (!valid) {
-      this.toast.show('Please fix the highlighted errors', 'error');
+      this.messageService.add({ severity: 'error', summary: 'Error Message', detail: 'Please fix the highlighted errors.' });
     }
     return valid;
   }
@@ -446,41 +472,9 @@ export class MeasurementComponent implements OnInit, OnDestroy {
           break;
         }
       }
-      this.toast.show('Please fix all errors before saving', 'error');
+      this.messageService.add({ severity: 'error', summary: 'Error Message', detail: 'Please fix all errors before saving.' });
     }
     return valid;
-  }
-
-  // ─── Submit ──────────────────────────────────────────────────────
-
-  onSubmit(): void {
-    if (!this.validateAll()) return;
-
-    this.submitting = true;
-    this.cdr.markForCheck();
-    const formValue = this.form.getRawValue(); // includes disabled controls
-    console.log("🚀 ~ MeasurementComponent ~ onSubmit ~ formValue:", formValue)
-
-    // return
-    try {
-      if (this.isEditing && this.editingId) {
-        // this.measurementService.update(this.editingId, formValue);
-        this.toast.show('Measurement updated successfully', 'success');
-      } else {
-        this.measurementService.createMeasurement(formValue).subscribe((resp: any) => {
-          this.toast.show('Measurement saved successfully', 'success');
-          this.hideDialog();
-          this.loadMeasurementData();
-          this.currentStep = 0;
-          this.form.reset();
-          this.initForm();
-        });
-      }
-    } catch {
-      this.toast.show('Something went wrong. Please try again.', 'error');
-    } finally {
-      this.submitting = false;
-    }
   }
 
   // ─── Error Helpers ───────────────────────────────────────────────
@@ -511,151 +505,4 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   private toDateString(date: Date): string {
     return date.toISOString().split('T')[0];
   }
-
-  openNew() {
-    this.product = {};
-    this.submitted = false;
-    this.productDialog = true;
-  }
-
-  editProduct(product: Product) {
-    this.product = { ...product };
-    this.productDialog = true;
-  }
-
-  deleteSelectedProducts() {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete the selected products?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        // this.products.set(this.products().filter((val) => !this.selectedProducts?.includes(val)));
-        this.selectedProducts = null;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Products Deleted',
-          life: 3000
-        });
-      }
-    });
-  }
-
-  hideDialog() {
-    this.productDialog = false;
-    this.submitted = false;
-  }
-
-  deleteProduct(product: Product) {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + product.name + '?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        // this.products.set(this.products().filter((val) => val.id !== product.id));
-        this.product = {};
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Product Deleted',
-          life: 3000
-        });
-      }
-    });
-  }
-
-  findIndexById(id: string): number {
-    let index = -1;
-    // for (let i = 0; i < this.products().length; i++) {
-    //   if (this.products()[i].id === id) {
-    //     index = i;
-    //     break;
-    //   }
-    // }
-
-    return index;
-  }
-
-  createId(): string {
-    let id = '';
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < 5; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-  }
-
-  getSeverity(status: string) {
-    switch (status) {
-      case 'INSTOCK':
-        return 'success';
-      case 'LOWSTOCK':
-        return 'warn';
-      case 'OUTOFSTOCK':
-        return 'danger';
-      default:
-        return 'info';
-    }
-  }
-
-  saveProduct() {
-    this.submitted = true;
-    let _products = [...this.measurementsList()];
-    // let _products = this.products();
-    if (this.product.name?.trim()) {
-      if (this.product.id) {
-        _products[this.findIndexById(this.product.id)] = this.product;
-        // this.products.set([..._products]);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Product Updated',
-          life: 3000
-        });
-      } else {
-        this.product.id = this.createId();
-        this.product.image = 'product-placeholder.svg';
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Product Created',
-          life: 3000
-        });
-        // this.products.set([..._products, this.product]);
-      }
-
-      this.productDialog = false;
-      this.product = {};
-    }
-  }
 }
-
-
-
-
-// function uniqueBookingNumber(measurementService: MeasurementService, id?: string): import("@angular/forms").AsyncValidatorFn {
-//   return (control: import('@angular/forms').AbstractControl) => {
-//     const val = control.value;
-//     if (!val) return Promise.resolve(null);
-
-//     try {
-//       // Support synchronous lookup returning an item or null
-//       const res = (measurementService as any).getByBookingNumber?.(val);
-//       if (res !== undefined) {
-//         const exists = res && (!id || res.id !== id);
-//         return Promise.resolve(exists ? { uniqueBookingNumber: true } : null);
-//       }
-
-//       // Support async lookup returning Promise or Observable
-//       const maybePromise = (measurementService as any).isBookingNumberTaken?.(val) || (measurementService as any).existsBookingNumber?.(val);
-//       if (maybePromise && typeof maybePromise.then === 'function') {
-//         return maybePromise.then((taken: any) => (taken ? { uniqueBookingNumber: true } : null));
-//       }
-
-//       // As a last resort, assume unique
-//       return Promise.resolve(null);
-//     } catch {
-//       return Promise.resolve(null);
-//     }
-//   };
-// }

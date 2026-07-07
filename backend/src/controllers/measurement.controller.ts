@@ -233,7 +233,7 @@ const updateMeasurement = async (req: Request, res: Response, next: NextFunction
         cuffStyle: cuffStyle || measurement.cuffStyle,
         cuffButtonHoleStyle: cuffButtonHoleStyle || measurement.cuffButtonHoleStyle,
         cuffButtonHoleType: cuffButtonHoleType || measurement.cuffButtonHoleType,
-        cuffPattiButton: cuffPattiButton || measurement.cuffPattiButton,
+        cuffPattiButton: cuffPattiButton !== undefined ? cuffPattiButton : measurement.cuffPattiButton,
         description: description !== undefined ? description : measurement.description,
         previousBalance: previousBalance !== undefined ? previousBalance : measurement.previousBalance,
         totalCost: totalCost !== undefined ? totalCost : measurement.totalCost,

@@ -35,7 +35,7 @@ export interface Measurement {
   sidePockets: string;
   frontPattiLength: number;
   frontPattiWidth: number;
-  ArmholeWidth: number;
+  armholeWidth: number;
   sleeveWidth: number;
   sleeveType: string;
   cuffLength: number;
@@ -44,14 +44,14 @@ export interface Measurement {
   cuffStyle: string;
   cuffButtonHoleStyle: string;
   cuffButtonHoleType: string;
-  cuffPattiButton: string;
+  cuffPattiButton: boolean;
   description: string;
 
   // Expenses
-  PreviousBalance: number;
-  TotalCost: number;
-  AdvancePayment: number;
-  RemainingBalance: number;
+  previousBalance: number;
+  totalCost: number;
+  advancePayment: number;
+  remainingBalance: number;
   remarks: string;
 }
 
@@ -67,4 +67,3 @@ export const SLEEVE_TYPES = ['Single', 'Double'];
 export const CUFF_STYLES = ['Round', 'Straight'];
 export const BUTTON_HOLE_STYLES = ['Horizontal', 'Vertical'];
 export const BUTTON_HOLE_TYPES = ['Single Side', 'Double Side'];
-export const CUFF_PATTI_BUTTONS = ['None', 'Single', 'Double'];
