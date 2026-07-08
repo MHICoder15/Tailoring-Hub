@@ -1,17 +1,21 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
+import { MessageService } from 'primeng/api';
+import { ApiService } from '@/app/core/services/api.service';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
+  imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, ReactiveFormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ToastModule],
+  providers: [MessageService],
   template: `
     <app-floating-configurator />
     <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
@@ -30,32 +34,118 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
               <span class="text-muted-color font-medium">Sign in to continue</span>
             </div>
 
-            <div>
-              <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-              <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-120 mb-8" [(ngModel)]="email" />
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <div class="flex flex-col mb-6">
+                <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
+                <input pInputText id="email1" type="text" placeholder="Email address" class="w-full md:w-120" formControlName="email" [class.ng-invalid.ng-touched]="hasError('email')" />
+                @if (getError('email')) {
+                  <span class="error-msg">{{ getError('email') }}</span>
+                }
+              </div>
 
-              <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
-              <p-password id="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" class="mb-4" [fluid]="true" [feedback]="false"></p-password>
+              <div class="flex flex-col mb-6">
+                <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
+                <p-password
+                  id="password1"
+                  formControlName="password"
+                  placeholder="Password"
+                  [toggleMask]="true"
+                  [fluid]="true"
+                  [feedback]="false"
+                  [class.ng-invalid.ng-touched]="hasError('password')"
+                ></p-password>
+                @if (getError('password')) {
+                  <span class="error-msg">{{ getError('password') }}</span>
+                }
+              </div>
 
-              <div class="flex items-center justify-between mt-2 mb-8 gap-8">
+              <div class="flex items-center justify-between mt-2 mb-6 gap-8">
                 <div class="flex items-center">
-                  <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
+                  <p-checkbox formControlName="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
                   <label for="rememberme1">Remember me</label>
                 </div>
                 <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
               </div>
-              <p-button label="Sign In" styleClass="w-full" routerLink="/"></p-button>
-            </div>
+              <p-button type="submit" label="Sign In" styleClass="w-full" [loading]="loginLoading" [disabled]="loginLoading"></p-button>
+            </form>
           </div>
         </div>
       </div>
     </div>
+    <p-toast />
   `,
+  styles: [],
 })
-export class Login {
-  email: string = '';
+export class Login implements OnInit {
+  loginLoading: boolean = false;
+  loginForm!: FormGroup;
 
-  password: string = '';
+  constructor(
+    private router: Router,
+    private fb: FormBuilder,
+    private messageService: MessageService,
+    private apiService: ApiService,
+  ) {}
 
-  checked: boolean = false;
+  ngOnInit() {
+    this.initForm();
+  }
+
+  initForm() {
+    this.loginForm = this.fb.group({
+      email: [null, [Validators.required, Validators.email]],
+      password: [null, [Validators.required]],
+      checked: [null],
+    });
+  }
+
+  login(data: any): void {
+    this.loginLoading = true;
+    if (data.status === 'INVALID') {
+      this.messageService.add({ severity: 'error', summary: 'Error Message', detail: 'Please enter data in all fields and try again.' });
+      this.loginLoading = false;
+      return;
+    }
+    const params = data.value;
+    this.apiService.login(params).subscribe({
+      next: (resp: any) => {
+        console.log('🚀 ~ login ~ resp:', resp);
+        this.loginLoading = false;
+        if (resp.success === false) {
+          this.messageService.add({ severity: 'error', summary: 'Error Message', detail: resp.errors.general });
+          return;
+        } else {
+          this.messageService.add({ severity: 'success', summary: 'Success Message', detail: 'Login successfully' });
+        }
+        this.apiService.doUserRedirects(resp, this.router);
+      },
+      error: (err) => {
+        console.log('🚀 ~ login ~ err:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error Message', detail: err.error.message || 'An error occurred during login. Please try again.' });
+        this.loginLoading = false;
+      },
+    });
+  }
+
+  hasError(controlName: string): boolean {
+    const ctrl = this.loginForm.get(controlName);
+    return !!(ctrl && ctrl.touched && ctrl.invalid);
+  }
+
+  getError(controlName: string): string | null {
+    const ctrl = this.loginForm.get(controlName);
+    if (!ctrl || !ctrl.touched || !ctrl.invalid) return null;
+    if (ctrl.errors?.['required']) {
+      return `${controlName === 'email' ? 'Email' : 'Password'} is required`;
+    }
+    if (ctrl.errors?.['email']) {
+      return 'Please enter a valid email address';
+    }
+    return 'Invalid value';
+  }
+
+  onSubmit(): void {
+    this.loginForm.markAllAsTouched();
+    this.login(this.loginForm);
+  }
 }

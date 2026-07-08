@@ -8,15 +8,17 @@ import { AppMenuitem } from './app.menuitem';
   selector: 'app-menu',
   standalone: true,
   imports: [CommonModule, AppMenuitem, RouterModule],
-  template: `<ul class="layout-menu">
-        @for (item of model; track item.label) {
-            @if (!item.separator) {
-                <li app-menuitem [item]="item" [root]="true"></li>
-            } @else {
-                <li class="menu-separator"></li>
-            }
+  template: `
+    <ul class="layout-menu">
+      @for (item of model; track item.label) {
+        @if (!item.separator) {
+          <li app-menuitem [item]="item" [root]="true"></li>
+        } @else {
+          <li class="menu-separator"></li>
         }
-    </ul> `,
+      }
+    </ul>
+  `,
 })
 export class AppMenu {
   model: MenuItem[] = [];
@@ -27,8 +29,8 @@ export class AppMenu {
         label: 'Menu',
         items: [
           { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
-          { label: 'Measurements', icon: 'pi pi-fw pi-pencil', routerLink: ['/pages/measurements'] }
-        ]
+          { label: 'Measurements', icon: 'pi pi-fw pi-pencil', routerLink: ['/measurement'] },
+        ],
       },
       {
         label: 'Pages',
@@ -43,37 +45,37 @@ export class AppMenu {
               {
                 label: 'Login',
                 icon: 'pi pi-fw pi-sign-in',
-                routerLink: ['/auth/login']
+                routerLink: ['/auth/login'],
               },
               {
                 label: 'Error',
                 icon: 'pi pi-fw pi-times-circle',
-                routerLink: ['/auth/error']
+                routerLink: ['/auth/error'],
               },
               {
                 label: 'Access Denied',
                 icon: 'pi pi-fw pi-lock',
-                routerLink: ['/auth/access']
-              }
-            ]
+                routerLink: ['/auth/access'],
+              },
+            ],
           },
           {
             label: 'Crud',
             icon: 'pi pi-fw pi-pencil',
-            routerLink: ['/pages/crud']
+            routerLink: ['/crud'],
           },
           {
             label: 'Not Found',
             icon: 'pi pi-fw pi-exclamation-circle',
-            routerLink: ['/pages/notfound']
+            routerLink: ['/notfound'],
           },
           {
             label: 'Empty',
             icon: 'pi pi-fw pi-circle-off',
-            routerLink: ['/pages/empty']
-          }
-        ]
-      }
+            routerLink: ['/empty'],
+          },
+        ],
+      },
     ];
   }
 }

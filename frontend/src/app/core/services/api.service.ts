@@ -35,7 +35,7 @@ export class ApiService {
     status: '',
   };
   constructor(public http: HttpClient) {
-    this.baseUrl = apis.baseUrl + '/auth';
+    this.baseUrl = apis.baseUrl + '/users';
     this.scrollBottom = false;
     this.scrollBottomChange.subscribe((value) => {
       this.scrollBottom = value;
@@ -63,18 +63,18 @@ export class ApiService {
 
     return this.http.post<any>(url, params).pipe(
       map((resp) => {
-        console.log("🚀 ~ login ~ resp:", resp)
-        if (resp && resp.success) {
-          localStorage.setItem('accessToken', resp.data.accessToken);
-          localStorage.setItem('refreshToken', resp.data.refreshToken);
-          localStorage.setItem('user', JSON.stringify(resp.data.user));
-          this.user = resp.data.user;
-          console.log(this.user);
+        console.log('🚀 ~ login ~ resp:', resp);
+        if (resp) {
+          localStorage.setItem('accessToken', resp.accessToken);
+          // localStorage.setItem('refreshToken', resp.refreshToken);
+          // localStorage.setItem('user', JSON.stringify(resp.user));
+          // this.user = resp.user;
+          // console.log(this.user);
           this.userLoggedInSource.next(true);
         }
 
         return resp;
-      })
+      }),
     );
   }
 
@@ -83,7 +83,7 @@ export class ApiService {
 
     return this.http.post<any>(url, params).pipe(
       map((resp) => {
-        console.log("🚀 ~ register ~ resp:", resp)
+        console.log('🚀 ~ register ~ resp:', resp);
         if (resp && resp.success && resp.data.token) {
           localStorage.setItem('token', resp.data.token);
           localStorage.setItem('user', JSON.stringify(resp.data));
@@ -92,12 +92,12 @@ export class ApiService {
         }
 
         return resp;
-      })
+      }),
     );
   }
 
   doUserRedirects(resp: any, router: Router) {
-    if (resp.data) {
+    if (resp.id && resp.accessToken) {
       router.navigate(['/dashboard']);
     }
   }
@@ -120,11 +120,7 @@ export class ApiService {
     }
   }
 
-  jsonToFormData(
-    jsonObject: { [key: string]: any },
-    parentKey?: any,
-    carryFormData?: FormData
-  ): FormData {
+  jsonToFormData(jsonObject: { [key: string]: any }, parentKey?: any, carryFormData?: FormData): FormData {
     const formData = carryFormData || new FormData();
     let index = 0;
 
@@ -148,10 +144,7 @@ export class ApiService {
                 formData.append(propName + '[' + j + ']', file);
               }
             }
-          } else if (
-            this.isArray(jsonObject[key]) ||
-            this.isObject(jsonObject[key])
-          ) {
+          } else if (this.isArray(jsonObject[key]) || this.isObject(jsonObject[key])) {
             this.jsonToFormData(jsonObject[key], propName, formData);
           } else if (typeof jsonObject[key] === 'boolean') {
             formData.append(propName, +jsonObject[key] ? '1' : '0');
@@ -246,9 +239,7 @@ export class ApiService {
     if (this.user.user_type === ConstantsService.USER_ROLES.ADMIN) {
       return true;
     }
-    const index = this.user.permissions.findIndex(
-      (item: any) => permissions.indexOf(item.name) > -1
-    );
+    const index = this.user.permissions.findIndex((item: any) => permissions.indexOf(item.name) > -1);
     if (index > -1) {
       return true;
     } else {
@@ -260,9 +251,7 @@ export class ApiService {
     if (this.user.user_type === ConstantsService.USER_ROLES.ADMIN) {
       return true;
     }
-    const index = this.user.permissions.findIndex(
-      (item: any) => item.name === permission
-    );
+    const index = this.user.permissions.findIndex((item: any) => item.name === permission);
     //console.log('asdsad',index,permission,this.user.permissions[index]);
 
     if (index > -1) {
