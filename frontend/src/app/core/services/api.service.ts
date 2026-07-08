@@ -34,7 +34,10 @@ export class ApiService {
     balance: 0,
     status: '',
   };
-  constructor(public http: HttpClient) {
+  constructor(
+    public http: HttpClient,
+    private router: Router,
+  ) {
     this.baseUrl = apis.baseUrl + '/users';
     this.scrollBottom = false;
     this.scrollBottomChange.subscribe((value) => {
@@ -104,10 +107,11 @@ export class ApiService {
 
   logOut(): boolean {
     localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    this.user.id = 0;
-    this.userLoggedInSource.next(false);
+    this.router.navigate(['/login']);
+    // localStorage.removeItem('refreshToken');
+    // localStorage.removeItem('user');
+    // this.user.id = 0;
+    // this.userLoggedInSource.next(false);
 
     return true;
   }
