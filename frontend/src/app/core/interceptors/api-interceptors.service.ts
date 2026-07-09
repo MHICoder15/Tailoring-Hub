@@ -1,11 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
-import {
-  HttpInterceptor,
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpErrorResponse
-} from '@angular/common/http';
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, filter, take, switchMap } from 'rxjs/operators';
 import { ApiService } from '../services/api.service';
@@ -17,7 +11,7 @@ export class ApiInterceptorsService implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
-  constructor(private injector: Injector) { }
+  constructor(private injector: Injector) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     let authReq = req;
@@ -30,11 +24,14 @@ export class ApiInterceptorsService implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError((error) => {
-        if (error instanceof HttpErrorResponse && error.status === 401 && !req.url.includes('/login') && !req.url.includes('/register')) {
+        const isUnauthorized = error && (error.status === 401 || error.statusCode === 401);
+        const isAuthRoute = req.url.includes('/login') || req.url.includes('/register') || req.url.includes('/refresh-token');
+
+        if (isUnauthorized && !isAuthRoute) {
           return this.handle401Error(authReq, next);
         }
-        return throwError(error);
-      })
+        return throwError(() => error);
+      }),
     );
   }
 
@@ -53,17 +50,17 @@ export class ApiInterceptorsService implements HttpInterceptor {
         }),
         catchError((err) => {
           this.isRefreshing = false;
-          // Refresh token failed, perform logout
           apiService.logOut();
-          return throwError(err);
-        })
+          return throwError(() => err);
+        }),
       );
     } else {
-      // Queue the other requests until token is refreshed
       return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
+        filter((token) => token !== null),
         take(1),
-        switchMap((jwt) => next.handle(this.addTokenHeader(request, jwt)))
+        switchMap((jwt) => {
+          return next.handle(this.addTokenHeader(request, jwt));
+        }),
       );
     }
   }

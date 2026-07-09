@@ -37,7 +37,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   }
   // Token generation JWT
   try {
-    const accessToken = Jwt.sign({ id: newUser._id }, config.jwtSecret as string, { expiresIn: "5m" });
+    const accessToken = Jwt.sign({ id: newUser._id }, config.jwtSecret as string, { expiresIn: "1h" });
     const refreshToken = Jwt.sign({ id: newUser._id }, config.jwtRefreshSecret as string, { expiresIn: "7d" });
     newUser.refreshToken = refreshToken;
     await userModel.findByIdAndUpdate(newUser._id, { refreshToken });
@@ -84,7 +84,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   }
   // Token generation JWT
   try {
-    const accessToken = Jwt.sign({ id: user._id }, config.jwtSecret as string, { expiresIn: "5m" });
+    const accessToken = Jwt.sign({ id: user._id }, config.jwtSecret as string, { expiresIn: "1h" });
     const refreshToken = Jwt.sign({ id: user._id }, config.jwtRefreshSecret as string, { expiresIn: "7d" });
     await userModel.findByIdAndUpdate(user._id, { refreshToken });
     // Response
@@ -113,7 +113,7 @@ const refreshAccessToken = async (req: Request, res: Response, next: NextFunctio
       return next(createHttpError(401, "Invalid or revoked refresh token"));
     }
 
-    const newAccessToken = Jwt.sign({ id: user._id }, config.jwtSecret as string, { expiresIn: "5m" });
+    const newAccessToken = Jwt.sign({ id: user._id }, config.jwtSecret as string, { expiresIn: "1h" });
     const newRefreshToken = Jwt.sign({ id: user._id }, config.jwtRefreshSecret as string, { expiresIn: "7d" });
 
     await userModel.findByIdAndUpdate(user._id, { refreshToken: newRefreshToken });

@@ -27,6 +27,6 @@ export class HttpErrorsInterceptorService implements HttpInterceptor {
       this.router.navigateByUrl('404');
     }
 
-    return throwError(err);
+    return throwError(() => err);
   }
 }
