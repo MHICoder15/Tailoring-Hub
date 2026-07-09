@@ -69,10 +69,7 @@ export class ApiService {
         console.log('🚀 ~ login ~ resp:', resp);
         if (resp) {
           localStorage.setItem('accessToken', resp.accessToken);
-          // localStorage.setItem('refreshToken', resp.refreshToken);
-          // localStorage.setItem('user', JSON.stringify(resp.user));
-          // this.user = resp.user;
-          // console.log(this.user);
+          localStorage.setItem('refreshToken', resp.refreshToken);
           this.userLoggedInSource.next(true);
         }
 
@@ -87,10 +84,9 @@ export class ApiService {
     return this.http.post<any>(url, params).pipe(
       map((resp) => {
         console.log('🚀 ~ register ~ resp:', resp);
-        if (resp && resp.success && resp.data.token) {
-          localStorage.setItem('token', resp.data.token);
-          localStorage.setItem('user', JSON.stringify(resp.data));
-          this.user = resp.data;
+        if (resp && resp.accessToken) {
+          localStorage.setItem('accessToken', resp.accessToken);
+          localStorage.setItem('refreshToken', resp.refreshToken);
           this.userLoggedInSource.next(true);
         }
 
@@ -107,13 +103,28 @@ export class ApiService {
 
   logOut(): boolean {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    this.userLoggedInSource.next(false);
     this.router.navigate(['/login']);
-    // localStorage.removeItem('refreshToken');
-    // localStorage.removeItem('user');
-    // this.user.id = 0;
-    // this.userLoggedInSource.next(false);
 
     return true;
+  }
+
+  refreshToken(): Observable<any> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    const url = `${this.baseUrl}/refresh-token`;
+
+    return this.http.post<any>(url, { refreshToken }).pipe(
+      map((resp) => {
+        if (resp && resp.accessToken) {
+          localStorage.setItem('accessToken', resp.accessToken);
+          if (resp.refreshToken) {
+            localStorage.setItem('refreshToken', resp.refreshToken);
+          }
+        }
+        return resp;
+      }),
+    );
   }
 
   isAuthenticated(): boolean {

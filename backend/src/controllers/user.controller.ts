@@ -37,10 +37,12 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
   }
   // Token generation JWT
   try {
-    const token = Jwt.sign({ id: newUser._id }, config.jwtSecret as string, { expiresIn: "1d" });
+    const accessToken = Jwt.sign({ id: newUser._id }, config.jwtSecret as string, { expiresIn: "5m" });
+    const refreshToken = Jwt.sign({ id: newUser._id }, config.jwtRefreshSecret as string, { expiresIn: "7d" });
+    newUser.refreshToken = refreshToken;
+    await userModel.findByIdAndUpdate(newUser._id, { refreshToken });
     // Response
-    res.status(201).json({ message: "User registered successfully", id: newUser._id, accessToken: token });
-
+    res.status(201).json({ message: "User registered successfully", id: newUser._id, accessToken, refreshToken });
   } catch (error) {
     console.error(error);
     const httpError = createHttpError(500, "Error occurred while signing JWT token");
@@ -82,10 +84,11 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   }
   // Token generation JWT
   try {
-    const token = Jwt.sign({ id: user._id }, config.jwtSecret as string, { expiresIn: "1d" });
+    const accessToken = Jwt.sign({ id: user._id }, config.jwtSecret as string, { expiresIn: "5m" });
+    const refreshToken = Jwt.sign({ id: user._id }, config.jwtRefreshSecret as string, { expiresIn: "7d" });
+    await userModel.findByIdAndUpdate(user._id, { refreshToken });
     // Response
-    res.status(200).json({ message: "User logged in successfully", id: user._id, accessToken: token });
-
+    res.status(200).json({ message: "User logged in successfully", id: user._id, accessToken, refreshToken });
   } catch (error) {
     console.error(error);
     const httpError = createHttpError(500, "Error occurred while signing JWT token");
@@ -93,4 +96,49 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { createUser, loginUser };
+const refreshAccessToken = async (req: Request, res: Response, next: NextFunction) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return next(createHttpError(400, "Refresh token is required"));
+  }
+
+  try {
+    const decoded = Jwt.verify(refreshToken, config.jwtRefreshSecret as string) as Jwt.JwtPayload;
+    if (!decoded || !decoded.id) {
+      return next(createHttpError(401, "Invalid refresh token payload"));
+    }
+
+    const user = await userModel.findById(decoded.id);
+    if (!user || user.refreshToken !== refreshToken) {
+      return next(createHttpError(401, "Invalid or revoked refresh token"));
+    }
+
+    const newAccessToken = Jwt.sign({ id: user._id }, config.jwtSecret as string, { expiresIn: "5m" });
+    const newRefreshToken = Jwt.sign({ id: user._id }, config.jwtRefreshSecret as string, { expiresIn: "7d" });
+
+    await userModel.findByIdAndUpdate(user._id, { refreshToken: newRefreshToken });
+
+    res.status(200).json({
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    return next(createHttpError(401, "Invalid or expired refresh token"));
+  }
+};
+
+const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as Request & { userId?: string }).userId;
+    if (userId) {
+      await userModel.findByIdAndUpdate(userId, { refreshToken: null });
+    }
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    return next(createHttpError(500, "Error occurred during logout"));
+  }
+};
+
+export { createUser, loginUser, refreshAccessToken, logoutUser };
