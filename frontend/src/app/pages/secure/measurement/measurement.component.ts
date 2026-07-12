@@ -16,7 +16,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MeasurementService } from '@/app/core/services/measurement.service';
 import { combineLatest, Subject, Subscription, startWith, takeUntil } from 'rxjs';
-import { STITCHING_TYPES, WAIST_TYPES, NECK_TYPES, POCKET_OPTIONS, SLEEVE_TYPES, CUFF_STYLES, BUTTON_HOLE_STYLES, BUTTON_HOLE_TYPES, Measurement, } from '@/app/core/models/measurement.model';
+import { STITCHING_TYPES, WAIST_TYPES, NECK_TYPES, POCKET_OPTIONS, SLEEVE_TYPES, CUFF_STYLES, BUTTON_HOLE_STYLES, BUTTON_HOLE_TYPES, Measurement } from '@/app/core/models/measurement.model';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageModule } from 'primeng/message';
 import { InputMaskModule } from 'primeng/inputmask';
@@ -55,11 +55,11 @@ interface ExportColumn {
     ToggleSwitchModule,
     MessageModule,
     InputMaskModule,
-    DatePickerModule
+    DatePickerModule,
   ],
   templateUrl: './measurement.component.html',
   styleUrls: ['./measurement.component.css'],
-  providers: [MessageService, ConfirmationService]
+  providers: [MessageService, ConfirmationService],
 })
 export class MeasurementComponent implements OnInit, OnDestroy {
   measurementDialog: boolean = false;
@@ -73,7 +73,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   isEditing = false;
   editingId?: string = '';
   isSubmitted: boolean = false;
-  measurement!: Measurement
+  measurement!: Measurement;
 
   // Step definitions
   readonly steps = [
@@ -81,21 +81,32 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     { title: 'Kameez', icon: 'pi pi-address-book' },
     { title: 'Shalwar', icon: 'pi pi-box' },
     { title: 'Stitching', icon: 'pi pi-pencil' },
-    { title: 'Expenses', icon: 'pi pi-wallet' }
+    { title: 'Expenses', icon: 'pi pi-wallet' },
   ];
 
   // Controls mapped to each step for step-level validation
   readonly stepControls: string[][] = [
     ['name', 'bookingNumber', 'phoneNumber', 'dateOfBooking', 'deliveryDate'],
-    ['kameezLength', 'sleeve', 'shoulder', 'neck', 'chest', 'waist'],
+    ['kameezLength', 'sleeve', 'shoulder', 'neck', 'chest', 'waist', 'armholeWidth', 'sleeveWidth'],
     ['shalwarLength', 'ankleOpening', 'shalwarPocket', 'shalwarWaist', 'crotchDepth'],
     [
-      'stitchingType', 'waistType', 'neckType', 'frontPocket',
-      'frontPocketWidth', 'frontPocketHeight', 'sidePockets',
-      'frontPattiLength', 'frontPattiWidth', 'armholeWidth',
-      'sleeveWidth', 'sleeveType', 'cuffLength', 'cuffWidth',
-      'cuffFit', 'cuffStyle', 'cuffButtonHoleStyle',
-      'cuffButtonHoleType', 'cuffPattiButton',
+      'stitchingType',
+      'waistType',
+      'neckType',
+      'frontPocket',
+      'frontPocketWidth',
+      'frontPocketHeight',
+      'sidePockets',
+      'frontPattiLength',
+      'frontPattiWidth',
+      'sleeveType',
+      'cuffLength',
+      'cuffWidth',
+      'cuffFit',
+      'cuffStyle',
+      'cuffButtonHoleStyle',
+      'cuffButtonHoleType',
+      'cuffPattiButton',
     ],
     ['previousBalance', 'totalCost', 'advancePayment', 'remainingBalance'],
   ];
@@ -161,7 +172,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     private measurementService: MeasurementService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadMeasurementData();
@@ -182,6 +193,9 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     this.measurementService.getMeasurements().subscribe((resp) => {
       if (resp.success === true) {
         this.measurementsList.set(resp.data);
+        if (this.form && !this.isEditing) {
+          this.form.get('bookingNumber')?.setValue(this.getNextBookingNumber(), { emitEvent: false });
+        }
       }
     });
 
@@ -191,7 +205,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
       { field: 'phoneNumber', header: 'Phone Number' },
       { field: 'previousBalance', header: 'Previous Balance' },
       { field: 'totalCost', header: 'Total Cost' },
-      { field: 'remainingBalance', header: 'Remaining Balance' }
+      { field: 'remainingBalance', header: 'Remaining Balance' },
     ];
 
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
@@ -204,10 +218,11 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   // ─── Form Initialization ─────────────────────────────────────────
 
   private initForm(): void {
+    const nextBookingNum = this.isEditing ? '' : this.getNextBookingNumber();
     this.form = this.fb.group({
       // Customer Info
       name: ['', [Validators.required]],
-      bookingNumber: [{ value: '', disabled: false }, [Validators.required]],
+      bookingNumber: [{ value: nextBookingNum, disabled: true }, [Validators.required]],
       phoneNumber: ['', [Validators.required]],
       dateOfBooking: [new Date(), [Validators.required]],
       deliveryDate: [new Date(new Date().setDate(new Date().getDate() + 14)), [Validators.required]],
@@ -219,6 +234,8 @@ export class MeasurementComponent implements OnInit, OnDestroy {
       neck: [null, [Validators.required, Validators.min(0)]],
       chest: [null, [Validators.required, Validators.min(0)]],
       waist: [null, [Validators.required, Validators.min(0)]],
+      armholeWidth: [null, [Validators.required, Validators.min(0)]],
+      sleeveWidth: [null, [Validators.required, Validators.min(0)]],
 
       // Shalwar
       shalwarLength: [null, [Validators.required, Validators.min(0)]],
@@ -231,15 +248,13 @@ export class MeasurementComponent implements OnInit, OnDestroy {
       stitchingType: ['Single', [Validators.required]],
       waistType: ['Round', [Validators.required]],
       neckType: ['Collar', [Validators.required]],
-      frontPocket: ['Single', [Validators.required]],
+      frontPocket: [true, [Validators.required]],
       frontPocketWidth: [5, [Validators.required, Validators.min(0)]],
       frontPocketHeight: [5.5, [Validators.required, Validators.min(0)]],
-      sidePockets: ['Single', [Validators.required]],
+      sidePockets: [false, [Validators.required]],
       frontPattiLength: [13, [Validators.required, Validators.min(0)]],
       frontPattiWidth: [1, [Validators.required, Validators.min(0)]],
-      armholeWidth: [null, [Validators.required, Validators.min(0)]],
-      sleeveWidth: [null, [Validators.required, Validators.min(0)]],
-      sleeveType: ['Single', [Validators.required]],
+      sleeveType: [false, [Validators.required]],
       cuffLength: [9.5, [Validators.required, Validators.min(0)]],
       cuffWidth: [2.5, [Validators.required, Validators.min(0)]],
       cuffFit: [false, [Validators.required]],
@@ -250,13 +265,34 @@ export class MeasurementComponent implements OnInit, OnDestroy {
       description: [''],
 
       // Expenses
-      previousBalance: [null, [Validators.required, Validators.min(0)]],
+      previousBalance: [0, [Validators.required, Validators.min(0)]],
       totalCost: [null, [Validators.required, Validators.min(0)]],
-      advancePayment: [null, [Validators.required, Validators.min(0)]],
+      advancePayment: [0, [Validators.required, Validators.min(0)]],
       remainingBalance: [{ value: 0, disabled: true }],
       remarks: [''],
     });
     this.setupValueChanges();
+  }
+
+  getNextBookingNumber(): string {
+    const list = this.measurementsList();
+    if (!list || list.length === 0) {
+      return 'BK-01';
+    }
+
+    const latestItem = list[0];
+    let latestNum = 0;
+    if (latestItem && latestItem.bookingNumber) {
+      const digits = latestItem.bookingNumber.toString().replace(/\D/g, '');
+      const num = parseInt(digits, 10);
+      if (!isNaN(num)) {
+        latestNum = num;
+      }
+    }
+
+    const nextNum = latestNum + 1;
+    const padded = nextNum.toString().padStart(2, '0');
+    return `BK-${padded}`;
   }
 
   // ─── Submit ──────────────────────────────────────────────────────
@@ -271,12 +307,14 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     if (this.isEditing && this.editingId) {
       this.measurementService.updateMeasurement(formValue, this.editingId).subscribe({
         next: (resp) => {
-          this.messageService.add({ severity: 'success', summary: 'Success Message', detail: resp.message || 'Measurement updated successfully' });
-          this.hideMessageDialog();
-          this.loadMeasurementData();
-          this.currentStep = 0;
-          this.form.reset();
-          this.initForm();
+          if (resp.success === true) {
+            this.messageService.add({ severity: 'success', summary: 'Success Message', detail: resp.message || 'Measurement updated successfully' });
+            this.hideMessageDialog();
+            this.loadMeasurementData();
+            this.currentStep = 0;
+            this.form.reset();
+            this.initForm();
+          }
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error Message', detail: err.error.message || 'Failed to update measurement' });
@@ -287,12 +325,14 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     } else {
       this.measurementService.createMeasurement(formValue).subscribe({
         next: (resp) => {
-          this.messageService.add({ severity: 'success', summary: 'Success Message', detail: resp.message || 'Measurement saved successfully' });
-          this.hideMessageDialog();
-          this.loadMeasurementData();
-          this.currentStep = 0;
-          this.form.reset();
-          this.initForm();
+          if (resp.success === true) {
+            this.messageService.add({ severity: 'success', summary: 'Success Message', detail: resp.message || 'Measurement saved successfully' });
+            this.hideMessageDialog();
+            this.loadMeasurementData();
+            this.currentStep = 0;
+            this.form.reset();
+            this.initForm();
+          }
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error Message', detail: err.error.message || 'Failed to save measurement' });
@@ -308,7 +348,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     const patchedValues = {
       ...measurement,
       dateOfBooking: measurement.dateOfBooking ? new Date(measurement.dateOfBooking) : null,
-      deliveryDate: measurement.deliveryDate ? new Date(measurement.deliveryDate) : null
+      deliveryDate: measurement.deliveryDate ? new Date(measurement.deliveryDate) : null,
     };
     this.form.patchValue(patchedValues);
     this.measurementDialog = true;
@@ -340,15 +380,15 @@ export class MeasurementComponent implements OnInit, OnDestroy {
         } catch {
           this.messageService.add({ severity: 'error', summary: 'Error Message', detail: 'Something went wrong. Please try again.' });
         }
-      }
+      },
     });
   }
 
   openNewMessageDialog() {
     this.currentStep = 0;
     this.form.reset();
-    this.initForm();
     this.isEditing = false;
+    this.initForm();
     this.isSubmitted = false;
     this.measurementDialog = true;
   }
@@ -498,11 +538,6 @@ export class MeasurementComponent implements OnInit, OnDestroy {
 
   /** Whether to show front pocket dimension fields */
   get showPocketDimensions(): boolean {
-    const val = this.form.get('frontPocket')?.value;
-    return val && val !== 'None';
-  }
-
-  private toDateString(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return !!this.form.get('frontPocket')?.value;
   }
 }

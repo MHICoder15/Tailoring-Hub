@@ -29,15 +29,15 @@ export interface Measurement {
   stitchingType: string;
   waistType: string;
   neckType: string;
-  frontPocket: string;
+  frontPocket: boolean;
   frontPocketWidth: number;
   frontPocketHeight: number;
-  sidePockets: string;
+  sidePockets: boolean;
   frontPattiLength: number;
   frontPattiWidth: number;
   armholeWidth: number;
   sleeveWidth: number;
-  sleeveType: string;
+  sleeveType: boolean;
   cuffLength: number;
   cuffWidth: number;
   cuffFit: boolean;
@@ -59,11 +59,42 @@ export interface Measurement {
 export type MeasurementFormValue = Partial<Measurement>;
 
 /** Select options constants */
-export const STITCHING_TYPES = ['Single', 'Double', 'Shiny Single', 'Shiny Double', 'Kurta'];
-export const WAIST_TYPES = ['Straight', 'Round'];
-export const NECK_TYPES = ['Collar', 'Ban Straight', 'Ban Cut', 'Round'];
-export const POCKET_OPTIONS = ['Single', 'Double', 'None'];
-export const SLEEVE_TYPES = ['Single', 'Double'];
-export const CUFF_STYLES = ['Round', 'Straight'];
-export const BUTTON_HOLE_STYLES = ['Horizontal', 'Vertical'];
-export const BUTTON_HOLE_TYPES = ['Single Side', 'Double Side'];
+export const STITCHING_TYPES = [
+  { key: 'Single', value: 'Single' },
+  { key: 'Double', value: 'Double' },
+  { key: 'Chamak Single', value: 'Chamak Single' },
+  { key: 'Chamak Double', value: 'Chamak Double' },
+  { key: 'Kurta', value: 'Kurta' },
+];
+export const WAIST_TYPES = [
+  { key: 'Straight', value: '(Seedha) Straight' },
+  { key: 'Round', value: '(Gol) Round' },
+];
+export const NECK_TYPES = [
+  { key: 'Collar', value: 'Collar' },
+  { key: 'Ban Cut Gol', value: 'Ban Cut Gol' },
+  { key: 'Ban Cut Seedha', value: 'Ban Cut Seedha' },
+  { key: 'Ban Full', value: 'Ban Full' },
+  { key: 'Gol Gala', value: 'Gol Gala' },
+];
+export const POCKET_OPTIONS = [
+  { key: 'Single', value: 'Single' },
+  { key: 'Double', value: 'Double' },
+  { key: 'None', value: 'None' },
+];
+export const SLEEVE_TYPES = [
+  { key: 'Single', value: 'Single' },
+  { key: 'Double', value: 'Double' },
+];
+export const CUFF_STYLES = [
+  { key: 'Round', value: '(Gol) Round' },
+  { key: 'Straight', value: '(Seedha) Straight' },
+];
+export const BUTTON_HOLE_STYLES = [
+  { key: 'Horizontal', value: 'Horizontal' },
+  { key: 'Vertical', value: 'Vertical' },
+];
+export const BUTTON_HOLE_TYPES = [
+  { key: 'Single Side', value: 'Single Side' },
+  { key: 'Double Side', value: 'Double Side' },
+];

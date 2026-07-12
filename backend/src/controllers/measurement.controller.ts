@@ -46,18 +46,51 @@ const createMeasurement = async (req: Request, res: Response, next: NextFunction
     totalCost,
     advancePayment,
     remainingBalance,
-    remarks
+    remarks,
   } = req.body;
 
   // Validation
-  if (!name || !bookingNumber || !phoneNumber || !dateOfBooking || !deliveryDate ||
-    !kameezLength || !sleeve || !shoulder || !neck || !chest || !waist ||
-    !shalwarLength || !ankleOpening || shalwarPocket === undefined || !shalwarWaist || !crotchDepth ||
-    stitchingType === undefined || !waistType || !neckType || !frontPocket || !frontPocketWidth || !frontPocketHeight ||
-    !sidePockets || !frontPattiLength || !frontPattiWidth || !armholeWidth || !sleeveWidth || !sleeveType ||
-    !cuffLength || !cuffWidth || cuffFit === undefined || !cuffStyle || !cuffButtonHoleStyle || !cuffButtonHoleType || !cuffPattiButton ||
-    previousBalance === undefined || totalCost === undefined || advancePayment === undefined || remainingBalance === undefined ||
-    !remarks) {
+  if (
+    !name ||
+    !bookingNumber ||
+    !phoneNumber ||
+    !dateOfBooking ||
+    !deliveryDate ||
+    !kameezLength ||
+    !sleeve ||
+    !shoulder ||
+    !neck ||
+    !chest ||
+    !waist ||
+    !shalwarLength ||
+    !ankleOpening ||
+    shalwarPocket === undefined ||
+    !shalwarWaist ||
+    !crotchDepth ||
+    stitchingType === undefined ||
+    !waistType ||
+    !neckType ||
+    frontPocket === undefined ||
+    !frontPocketWidth ||
+    !frontPocketHeight ||
+    sidePockets === undefined ||
+    !frontPattiLength ||
+    !frontPattiWidth ||
+    !armholeWidth ||
+    !sleeveWidth ||
+    sleeveType === undefined ||
+    !cuffLength ||
+    !cuffWidth ||
+    cuffFit === undefined ||
+    !cuffStyle ||
+    !cuffButtonHoleStyle ||
+    !cuffButtonHoleType ||
+    !cuffPattiButton ||
+    previousBalance === undefined ||
+    totalCost === undefined ||
+    advancePayment === undefined ||
+    remainingBalance === undefined
+  ) {
     const error = createHttpError(400, "All fields are required");
     return next(error);
   }
@@ -65,7 +98,6 @@ const createMeasurement = async (req: Request, res: Response, next: NextFunction
   // Database operations
   try {
     const newMeasurement: Measurement = await measurementModel.create({
-      // customerId,
       name,
       bookingNumber,
       phoneNumber,
@@ -106,10 +138,10 @@ const createMeasurement = async (req: Request, res: Response, next: NextFunction
       totalCost,
       advancePayment,
       remainingBalance,
-      remarks
+      remarks,
     });
     // Response
-    res.json({ id: newMeasurement?._id, message: "Measurement created successfully" });
+    res.json(new ApiResponse(200, { id: newMeasurement?._id }, "✅ Measurement created successfully."));
   } catch (error) {
     console.error("Error creating measurement in database:", error);
     const httpError = createHttpError(500, "Error occurred while creating measurement");
@@ -120,7 +152,6 @@ const createMeasurement = async (req: Request, res: Response, next: NextFunction
 const updateMeasurement = async (req: Request, res: Response, next: NextFunction) => {
   const { measurementId } = req.params;
   const {
-    // customerId,
     name,
     bookingNumber,
     phoneNumber,
@@ -161,18 +192,52 @@ const updateMeasurement = async (req: Request, res: Response, next: NextFunction
     totalCost,
     advancePayment,
     remainingBalance,
-    remarks
+    remarks,
   } = req.body;
 
   // Validation
-  if (!name && !bookingNumber && !phoneNumber && !dateOfBooking && !deliveryDate &&
-    !kameezLength && !sleeve && !shoulder && !neck && !chest && !waist &&
-    !shalwarLength && !ankleOpening && shalwarPocket === undefined && !shalwarWaist && !crotchDepth &&
-    stitchingType === undefined && !waistType && !neckType && !frontPocket && !frontPocketWidth && !frontPocketHeight &&
-    !sidePockets && !frontPattiLength && !frontPattiWidth && !armholeWidth && !sleeveWidth && !sleeveType &&
-    !cuffLength && !cuffWidth && cuffFit === undefined && !cuffStyle && !cuffButtonHoleStyle && !cuffButtonHoleType && !cuffPattiButton &&
-    previousBalance === undefined && totalCost === undefined && advancePayment === undefined && remainingBalance === undefined &&
-    !remarks) {
+  if (
+    !name &&
+    !bookingNumber &&
+    !phoneNumber &&
+    !dateOfBooking &&
+    !deliveryDate &&
+    !kameezLength &&
+    !sleeve &&
+    !shoulder &&
+    !neck &&
+    !chest &&
+    !waist &&
+    !shalwarLength &&
+    !ankleOpening &&
+    shalwarPocket === undefined &&
+    !shalwarWaist &&
+    !crotchDepth &&
+    stitchingType === undefined &&
+    !waistType &&
+    !neckType &&
+    frontPocket === undefined &&
+    !frontPocketWidth &&
+    !frontPocketHeight &&
+    sidePockets === undefined &&
+    !frontPattiLength &&
+    !frontPattiWidth &&
+    !armholeWidth &&
+    !sleeveWidth &&
+    sleeveType === undefined &&
+    !cuffLength &&
+    !cuffWidth &&
+    cuffFit === undefined &&
+    !cuffStyle &&
+    !cuffButtonHoleStyle &&
+    !cuffButtonHoleType &&
+    !cuffPattiButton &&
+    previousBalance === undefined &&
+    totalCost === undefined &&
+    advancePayment === undefined &&
+    remainingBalance === undefined &&
+    remarks === undefined
+  ) {
     const error = createHttpError(400, "At least one field is required to update");
     return next(error);
   }
@@ -191,14 +256,10 @@ const updateMeasurement = async (req: Request, res: Response, next: NextFunction
     return next(httpError);
   }
 
-  // Validation - Check if user owns this measurement (assuming customerId links to user)
-  // For simplicity, we're allowing updates if the customerId matches or if user is authenticated
-  // In a real app, you might want more sophisticated authorization
   try {
     const updateMeasurement = await measurementModel.findByIdAndUpdate(
       measurementId,
       {
-        // customerId: customerId || measurement.customerId,
         name: name || measurement.name,
         bookingNumber: bookingNumber || measurement.bookingNumber,
         phoneNumber: phoneNumber || measurement.phoneNumber,
@@ -218,15 +279,15 @@ const updateMeasurement = async (req: Request, res: Response, next: NextFunction
         stitchingType: stitchingType !== undefined ? stitchingType : measurement.stitchingType,
         waistType: waistType || measurement.waistType,
         neckType: neckType || measurement.neckType,
-        frontPocket: frontPocket || measurement.frontPocket,
+        frontPocket: frontPocket !== undefined ? frontPocket : measurement.frontPocket,
         frontPocketWidth: frontPocketWidth || measurement.frontPocketWidth,
         frontPocketHeight: frontPocketHeight || measurement.frontPocketHeight,
-        sidePockets: sidePockets || measurement.sidePockets,
+        sidePockets: sidePockets !== undefined ? sidePockets : measurement.sidePockets,
         frontPattiLength: frontPattiLength || measurement.frontPattiLength,
         frontPattiWidth: frontPattiWidth || measurement.frontPattiWidth,
         ArmholeWidth: armholeWidth || measurement.armholeWidth,
         sleeveWidth: sleeveWidth || measurement.sleeveWidth,
-        sleeveType: sleeveType || measurement.sleeveType,
+        sleeveType: sleeveType !== undefined ? sleeveType : measurement.sleeveType,
         cuffLength: cuffLength || measurement.cuffLength,
         cuffWidth: cuffWidth || measurement.cuffWidth,
         cuffFit: cuffFit !== undefined ? cuffFit : measurement.cuffFit,
@@ -239,12 +300,12 @@ const updateMeasurement = async (req: Request, res: Response, next: NextFunction
         totalCost: totalCost !== undefined ? totalCost : measurement.totalCost,
         advancePayment: advancePayment !== undefined ? advancePayment : measurement.advancePayment,
         remainingBalance: remainingBalance !== undefined ? remainingBalance : measurement.remainingBalance,
-        remarks: remarks !== undefined ? remarks : measurement.remarks
+        remarks: remarks !== undefined ? remarks : measurement.remarks,
       },
-      { returnDocument: "after" }
+      { returnDocument: "after" },
     );
-    // Response 
-    res.json({ id: updateMeasurement?._id, message: "Measurement updated successfully" });
+    // Response
+    res.json(new ApiResponse(200, { id: updateMeasurement?._id }, "✅ Measurement updated successfully."));
   } catch (error) {
     console.error("Error updating measurement in database:", error);
     const httpError = createHttpError(500, "Error occurred while updating measurement");
@@ -255,9 +316,8 @@ const updateMeasurement = async (req: Request, res: Response, next: NextFunction
 const listMeasurements = async (req: Request, res: Response, next: NextFunction) => {
   // Database operations
   try {
-    const measurements = await measurementModel.find();
+    const measurements = await measurementModel.find().sort({ createdAt: "desc" });
     // Response
-    // res.json({ measurements });
     return res.status(200).json(new ApiResponse(200, measurements, "✅ Measurements fetched successfully."));
   } catch (error) {
     console.error("Error fetching measurements:", error);
@@ -275,7 +335,7 @@ const singleMeasurement = async (req: Request, res: Response, next: NextFunction
       return next(httpError);
     }
     // Response
-    res.json({ measurement });
+    res.json(new ApiResponse(200, { measurement }, "✅ Measurement fetched successfully."));
   } catch (error) {
     console.error("Error fetching measurement:", error);
     const httpError = createHttpError(500, "Error occurred while fetching measurement");
@@ -291,12 +351,9 @@ const deleteMeasurement = async (req: Request, res: Response, next: NextFunction
       const httpError = createHttpError(404, "Measurement not found");
       return next(httpError);
     }
-    // Validation - Check if user owns this measurement
-    // For simplicity, we're allowing deletion if authenticated
-    // In a real app, you might want to check if the customerId matches the user
     await measurementModel.findByIdAndDelete(req.params.measurementId);
     // Response
-    res.json({ message: "Measurement deleted successfully" });
+    res.json(new ApiResponse(200, null, "✅ Measurement deleted successfully."));
   } catch (error) {
     console.error("Error deleting measurement:", error);
     const httpError = createHttpError(500, "Error occurred while deleting measurement");

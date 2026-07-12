@@ -29,15 +29,15 @@ export interface Measurement {
   stitchingType: string;
   waistType: string;
   neckType: string;
-  frontPocket: string;
+  frontPocket: boolean;
   frontPocketWidth: number;
   frontPocketHeight: number;
-  sidePockets: string;
+  sidePockets: boolean;
   frontPattiLength: number;
   frontPattiWidth: number;
   armholeWidth: number;
   sleeveWidth: number;
-  sleeveType: string;
+  sleeveType: boolean;
   cuffLength: number;
   cuffWidth: number;
   cuffFit: boolean;
