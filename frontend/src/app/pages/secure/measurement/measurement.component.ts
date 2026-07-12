@@ -385,6 +385,26 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   }
 
   openNewMessageDialog() {
+    const draftStr = localStorage.getItem('measurement_draft');
+    if (draftStr) {
+      this.confirmationService.confirm({
+        message: 'You have a saved draft from a previous session. Do you want to restore it and continue from where you left off?',
+        header: 'Restore Draft',
+        icon: 'pi pi-info-circle',
+        accept: () => {
+          this.restoreDraft(draftStr);
+        },
+        reject: () => {
+          localStorage.removeItem('measurement_draft');
+          this.startFreshNewForm();
+        }
+      });
+    } else {
+      this.startFreshNewForm();
+    }
+  }
+
+  private startFreshNewForm() {
     this.currentStep = 0;
     this.form.reset();
     this.isEditing = false;
@@ -393,9 +413,73 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     this.measurementDialog = true;
   }
 
-  hideMessageDialog() {
+  private restoreDraft(draftStr: string) {
+    try {
+      const draft = JSON.parse(draftStr);
+      this.isEditing = false;
+      this.isSubmitted = false;
+      this.initForm();
+      this.form.patchValue(draft.formValue);
+      this.currentStep = draft.currentStep || 0;
+      this.measurementDialog = true;
+      this.cdr.markForCheck();
+    } catch (e) {
+      console.error('Failed to restore draft:', e);
+      this.startFreshNewForm();
+    }
+  }
+
+  onCloseDialogClick() {
+    if (this.isEditing || !this.form.dirty) {
+      this.closeDialogAndClearFlags();
+      return;
+    }
+
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to close? Your current progress will be saved as a draft.',
+      header: 'Confirm Close',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.saveDraft();
+        this.closeDialogAndClearFlags();
+        this.messageService.add({ severity: 'info', summary: 'Draft Saved', detail: 'Your draft has been saved successfully.' });
+      },
+      reject: () => {
+        this.measurementDialog = true;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  onVisibleChange(visible: boolean) {
+    if (!visible) {
+      this.measurementDialog = false;
+      this.onCloseDialogClick();
+    } else {
+      this.measurementDialog = true;
+    }
+  }
+
+  private saveDraft() {
+    try {
+      const draft = {
+        formValue: this.form.getRawValue(),
+        currentStep: this.currentStep
+      };
+      localStorage.setItem('measurement_draft', JSON.stringify(draft));
+    } catch (e) {
+      console.error('Failed to save draft:', e);
+    }
+  }
+
+  private closeDialogAndClearFlags() {
     this.measurementDialog = false;
     this.isSubmitted = false;
+  }
+
+  hideMessageDialog() {
+    localStorage.removeItem('measurement_draft');
+    this.closeDialogAndClearFlags();
   }
 
   // ─── Reactive Value Changes ──────────────────────────────────────

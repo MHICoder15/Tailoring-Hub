@@ -102,7 +102,22 @@
   </ng-template>
 </p-table>
 
-<p-dialog [(visible)]="measurementDialog" [style]="{ width: '800px' }" [header]="isEditing ? 'Edit Measurement' : 'New Measurement'" [modal]="true">
+<p-dialog [visible]="measurementDialog" (visibleChange)="onVisibleChange($event)" [closable]="false" [closeOnEscape]="false" [style]="{ width: '800px' }" [modal]="true">
+  <ng-template #header>
+    <div class="flex items-center justify-between w-full pr-8">
+      <span class="text-xl font-bold font-title text-primary">
+        {{ isEditing ? 'Edit Measurement' : 'New Measurement' }}
+      </span>
+      <button 
+        type="button" 
+        class="absolute right-4 top-4 p-dialog-header-icon p-dialog-header-close p-link" 
+        (click)="onCloseDialogClick()"
+        style="width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; background: transparent; cursor: pointer; color: var(--text-muted);"
+      >
+        <span class="pi pi-times"></span>
+      </button>
+    </div>
+  </ng-template>
   <ng-template #content>
     <div class="max-w-5xl mx-auto">
       <form [formGroup]="form">
@@ -897,7 +912,7 @@
         <div></div>
       }
       <div class="flex gap-3">
-        <p-button label="Cancel" icon="pi pi-times" text (click)="hideMessageDialog()" />
+        <p-button label="Cancel" icon="pi pi-times" text (click)="onCloseDialogClick()" />
         @if (!isLastStep) {
           <p-button label="Next" icon="pi pi-angle-right" (click)="nextStep()" />
         } @else {
