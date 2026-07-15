@@ -58,7 +58,7 @@ interface ExportColumn {
     DatePickerModule,
   ],
   templateUrl: './measurement.component.html',
-  styleUrls: ['./measurement.component.css'],
+  styleUrls: ['./measurement.component.scss'],
   providers: [MessageService, ConfirmationService],
 })
 export class MeasurementComponent implements OnInit, OnDestroy {
@@ -67,6 +67,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   exportColumns!: ExportColumn[];
   cols!: Column[];
   measurementsList = signal<any[]>([]);
+  selectedMeasurementForPrint = signal<any | null>(null);
   form!: FormGroup;
   private valueChangesSub?: Subscription;
   currentStep = 0;
@@ -293,6 +294,40 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     const nextNum = latestNum + 1;
     const padded = nextNum.toString().padStart(2, '0');
     return `BK-${padded}`;
+  }
+
+  getOptionUrdu(key: string | undefined, optionsList: { key: string, value: string }[]): string {
+    if (!key) return '-';
+    const found = optionsList.find(item => item.key === key);
+    if (!found) return key;
+    const parts = found.value.split('/');
+    return parts.length > 1 ? parts[1].trim() : found.value;
+  }
+
+  getNeckTypeUrdu(key: string | undefined): string {
+    return this.getOptionUrdu(key, this.neckTypes);
+  }
+
+  getStitchingTypeUrdu(key: string | undefined): string {
+    return this.getOptionUrdu(key, this.stitchingTypes);
+  }
+
+  getCuffStyleUrdu(key: string | undefined): string {
+    return this.getOptionUrdu(key, this.cuffStyles);
+  }
+
+  getButtonHoleStyleUrdu(key: string | undefined): string {
+    return this.getOptionUrdu(key, this.buttonHoleStyles);
+  }
+
+  getButtonHoleTypeUrdu(key: string | undefined): string {
+    return this.getOptionUrdu(key, this.buttonHoleTypes);
+  }
+
+  isUrdu(val: any): boolean {
+    if (!val) return false;
+    const str = String(val);
+    return /[\u0600-\u06FF]/.test(str);
   }
 
   // ─── Submit ──────────────────────────────────────────────────────
@@ -623,5 +658,15 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   /** Whether to show front pocket dimension fields */
   get showPocketDimensions(): boolean {
     return !!this.form.get('frontPocket')?.value;
+  }
+
+  printMeasurement(measurement: any) {
+    this.selectedMeasurementForPrint.set(measurement);
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      window.print();
+      this.selectedMeasurementForPrint.set(null);
+      this.cdr.detectChanges();
+    }, 150);
   }
 }

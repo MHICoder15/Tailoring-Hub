@@ -2,3 +2,28 @@
 @use 'primeicons/primeicons.css';
 @use './assets/layout/layout.scss';
 @use './assets/demo/demo.scss';
+
+@media print {
+  /* Global overrides to hide Sakai layout elements during printing */
+  .layout-topbar,
+  .layout-sidebar,
+  .layout-footer,
+  app-footer,
+  .layout-config-button,
+  .layout-config,
+  .layout-mask,
+  p-toast,
+  p-confirmdialog,
+  p-table,
+  p-button,
+  p-iconfield,
+  p-inputicon {
+    display: none !important;
+  }
+
+  .layout-main-container {
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+  }
+}

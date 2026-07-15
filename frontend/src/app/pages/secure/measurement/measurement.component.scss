@@ -1,0 +1,389 @@
+/* Hide page elements inside component that shouldn't print */
+@media print {
+  p-table,
+  p-button,
+  p-confirmdialog,
+  p-toast,
+  p-iconfield,
+  p-inputicon {
+    display: none !important;
+  }
+}
+
+/* Default state: Hide the print area on screen */
+.print-slip-area {
+  display: none;
+
+  /* Styles for printed page layout */
+  @media print {
+    /* Hide the rest of the application */
+    body * {
+      visibility: hidden;
+    }
+
+    /* Make only the print slip visible */
+    &,
+    & * {
+      visibility: visible;
+    }
+
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+
+    @page {
+      size: auto;
+      margin: 10mm;
+    }
+  }
+
+  /* Layout and typography styles */
+  .print-slip-card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 15px;
+    border: 3px double #0f2e5c; /* navy blue double border */
+    border-radius: 12px;
+    background-color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #0f2e5c; /* navy blue color palette */
+    box-sizing: border-box;
+
+    /* Header Stacked Layout for narrow A4/DL paper */
+    .print-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 4px;
+      border-bottom: 2px solid #0f2e5c;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+
+      .print-logo-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+
+        .logo-svg {
+          color: #0f2e5c;
+          fill: currentColor;
+          height: 42px;
+          width: 90px;
+        }
+      }
+
+      .print-shop-details {
+        text-align: center;
+
+        .english-title {
+          font-size: 19px;
+          font-weight: 800;
+          margin: 0;
+          color: #0f2e5c;
+          letter-spacing: 0.5px;
+        }
+
+        .english-subtitle {
+          font-size: 9px;
+          margin: 2px 0 0 0;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      /* Scissors Divider Line */
+      .scissors-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin: 2px 0;
+        color: #0f2e5c;
+
+        .line {
+          height: 1px;
+          width: 40px;
+          background-color: #0f2e5c;
+          opacity: 0.8;
+        }
+
+        i {
+          font-size: 9px;
+          transform: rotate(-90deg);
+        }
+      }
+
+      /* Contacts Column Centered */
+      .print-contacts {
+        width: 100%;
+        text-align: center;
+
+        .contact-row {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          font-weight: 700;
+          font-size: 9px;
+
+          .phone-num {
+            font-family: sans-serif;
+          }
+
+          .contact-icon {
+            font-size: 11px;
+          }
+        }
+      }
+    }
+
+    /* Meta Data Grid (Booking #, Date, Name) */
+    .print-meta-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr; /* booking number and date side-by-side */
+      gap: 5px;
+      margin-bottom: 10px;
+
+      .meta-box {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid #0f2e5c;
+        border-radius: 6px;
+        padding: 5px 8px;
+        background-color: #f7f9fc;
+
+        .meta-label {
+          font-size: 12px;
+          font-weight: 800;
+          margin-right: 4px;
+          white-space: nowrap;
+        }
+
+        .meta-val {
+          font-size: 12px;
+          font-weight: 600;
+          color: #1e293b;
+          word-break: break-all;
+        }
+
+        &.delivery-box {
+          .meta-val {
+            color: #b91c1c; /* red highlight for delivery date */
+            font-weight: 700;
+          }
+        }
+      }
+    }
+
+    /* Measurements Receipt Container (Line layout with dot leaders) */
+    .print-receipt-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 10px;
+
+      .print-group-header {
+        font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Segoe UI', Tahoma, sans-serif;
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        text-align: center;
+        margin: 4px 0;
+        border-bottom: 1.5px solid #0f2e5c;
+        padding-bottom: 4px;
+        letter-spacing: 1px;
+      }
+
+      .print-group-body {
+        display: flex;
+        flex-direction: column;
+        gap: 4.5px;
+        page-break-inside: avoid;
+
+        &.print-kameez-columns,
+        &.print-shalwar-columns {
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          column-gap: 25px;
+          row-gap: 14px;
+          align-items: start;
+          .print-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+          }
+
+          /* Mathematically centered vertical divider line element */
+          .print-column-divider {
+            width: 1.5px;
+            background-color: rgba(15, 46, 92, 0.25);
+            align-self: stretch;
+            margin: 4px 0;
+          }
+        }
+      }
+
+      .print-receipt-row {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: flex-end; /* aligns to text baseline */
+        width: 100%;
+        page-break-inside: avoid;
+
+        .print-receipt-label {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-weight: 700;
+          font-size: 12px;
+          color: #0f2e5c;
+          white-space: nowrap;
+
+          .label-svg-icon {
+            color: #0f2e5c;
+            opacity: 0.85;
+            flex-shrink: 0;
+          }
+
+          .urdu-text {
+            font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Segoe UI', Tahoma, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1;
+          }
+        }
+
+        .print-receipt-leader {
+          flex-grow: 1;
+          border-bottom: 1.5px dotted rgba(15, 46, 92, 0.4);
+          margin: 0 6px 3px 6px;
+        }
+
+        .print-receipt-value {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          color: #0f2e5c;
+          white-space: nowrap;
+          line-height: 1;
+
+          &.urdu-font {
+            font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Segoe UI', Tahoma, sans-serif !important;
+          }
+        }
+      }
+    }
+
+    /* Notes & Remarks Box */
+    .print-notes-box {
+      border: 1.5px dashed #0f2e5c;
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 4px;
+      font-size: 12px;
+
+      .notes-title {
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .notes-content {
+        color: #1e293b;
+      }
+    }
+
+    /* Footer Section (Vertical stack layout) */
+    .print-footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-top: 1.5px solid #0f2e5c;
+      padding-top: 8px;
+      margin-bottom: 8px;
+      gap: 6px;
+
+      /* Instructions Section */
+      .footer-instructions {
+        padding-left: 0px;
+        padding-right: 0px;
+        width: 100%;
+        font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Segoe UI', Tahoma, sans-serif;
+
+        .inst-title {
+          font-size: 12px;
+          font-weight: 700;
+          margin: 0 auto 4px auto;
+          background-color: #0f2e5c;
+          color: #ffffff;
+          width: fit-content;
+          padding: 0 8px 6px 8px;
+          border-radius: 8px;
+          text-align: center;
+        }
+
+        .inst-list {
+          margin: 0;
+          padding: 0;
+          list-style-type: none;
+          font-size: 12px;
+          line-height: 2;
+          text-align: center;
+          direction: rtl;
+
+          li {
+            position: relative;
+            padding: 0;
+
+            &::before {
+              content: '• ';
+              position: static;
+              color: #0f2e5c;
+              font-weight: bold;
+              margin-left: 5px;
+            }
+          }
+        }
+      }
+    }
+
+    /* Slogan Banner at very bottom */
+    .print-slogan-banner {
+      text-align: center;
+      border-top: 1.5px solid #0f2e5c;
+      padding-top: 6px;
+
+      .slogan-text {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+      }
+    }
+
+    /* Developer Credits styled neatly inside the card */
+    .print-developer-credits {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      margin-top: 5px;
+
+      .mhi-text {
+        color: var(--primary-color); /* green brand color */
+        font-weight: 700;
+      }
+    }
+  }
+}

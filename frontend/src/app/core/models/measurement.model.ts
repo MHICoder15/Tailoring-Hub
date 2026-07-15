@@ -60,41 +60,42 @@ export type MeasurementFormValue = Partial<Measurement>;
 
 /** Select options constants */
 export const STITCHING_TYPES = [
-  { key: 'Single', value: 'Single' },
-  { key: 'Double', value: 'Double' },
-  { key: 'Chamak Single', value: 'Chamak Single' },
-  { key: 'Chamak Double', value: 'Chamak Double' },
-  { key: 'Kurta', value: 'Kurta' },
+  { key: 'Single', value: 'Single / سنگل' },
+  { key: 'Double', value: 'Double / ڈبل' },
+  { key: 'Chamak Single', value: 'Chamak Single / چمک سنگل' },
+  { key: 'Chamak Double', value: 'Chamak Double / چمک ڈبل' },
+  { key: 'Kurta', value: 'Kurta / کرتا' },
 ];
 export const WAIST_TYPES = [
-  { key: 'Straight', value: '(Seedha) Straight' },
-  { key: 'Round', value: '(Gol) Round' },
+  { key: 'Straight', value: 'Straight / سیدھا' },
+  { key: 'Round', value: 'Round / گول' },
 ];
 export const NECK_TYPES = [
-  { key: 'Collar', value: 'Collar' },
-  { key: 'Ban Cut Gol', value: 'Ban Cut Gol' },
-  { key: 'Ban Cut Seedha', value: 'Ban Cut Seedha' },
-  { key: 'Ban Full', value: 'Ban Full' },
-  { key: 'Gol Gala', value: 'Gol Gala' },
+  { key: 'Collar', value: 'Collar / کالر' },
+  { key: 'Ban Cut Gol', value: 'Ban Cut Gol / بین کٹ گول' },
+  { key: 'Ban Cut Seedha', value: 'Ban Cut Seedha / بین کٹ سیدھا' },
+  { key: 'Ban Full', value: 'Ban Full / فل بین' },
+  { key: 'Gol Gala', value: 'Gol Gala / گول گلا' },
 ];
 export const POCKET_OPTIONS = [
-  { key: 'Single', value: 'Single' },
-  { key: 'Double', value: 'Double' },
-  { key: 'None', value: 'None' },
+  { key: 'Single', value: 'Single / سنگل' },
+  { key: 'Double', value: 'Double / ڈبل' },
+  { key: 'None', value: 'None / کوئی نہیں' },
 ];
 export const SLEEVE_TYPES = [
-  { key: 'Single', value: 'Single' },
-  { key: 'Double', value: 'Double' },
+  { key: 'Single', value: 'Single / سنگل' },
+  { key: 'Double', value: 'Double / ڈبل' },
 ];
 export const CUFF_STYLES = [
-  { key: 'Round', value: '(Gol) Round' },
-  { key: 'Straight', value: '(Seedha) Straight' },
+  { key: 'Round', value: 'Round / گول' },
+  { key: 'Straight', value: 'Straight / سیدھا' },
 ];
 export const BUTTON_HOLE_STYLES = [
-  { key: 'Horizontal', value: 'Horizontal' },
-  { key: 'Vertical', value: 'Vertical' },
+  { key: 'Horizontal', value: 'Horizontal / آڑا' },
+  { key: 'Vertical', value: 'Vertical / کھڑا' },
 ];
+
 export const BUTTON_HOLE_TYPES = [
-  { key: 'Single Side', value: 'Single Side' },
-  { key: 'Double Side', value: 'Double Side' },
+  { key: 'Single Side', value: 'Single Side / سنگل سائیڈ' },
+  { key: 'Double Side', value: 'Double Side / ڈبل سائیڈ' },
 ];
