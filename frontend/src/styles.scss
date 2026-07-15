@@ -3,6 +3,35 @@
 @use './assets/layout/layout.scss';
 @use './assets/demo/demo.scss';
 
+@font-face {
+  font-family: 'Noto Nastaliq Urdu';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/NotoNastaliqUrdu-400.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Noto Nastaliq Urdu';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/NotoNastaliqUrdu-500.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Noto Nastaliq Urdu';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/NotoNastaliqUrdu-600.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Noto Nastaliq Urdu';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/NotoNastaliqUrdu-700.ttf') format('truetype');
+}
+
 @media print {
   /* Global overrides to hide Sakai layout elements during printing */
   .layout-topbar,

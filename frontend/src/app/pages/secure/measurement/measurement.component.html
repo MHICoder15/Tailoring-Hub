@@ -947,9 +947,9 @@
 
 <!-- Printable Slip Layout -->
 <div class="print-slip-area" *ngIf="selectedMeasurementForPrint() as p">
-  <div class="print-slip-card">
+  <div class="print-slip-card p-4 m-0">
     <!-- Header Section -->
-    <div class="print-header">
+    <div class="print-header pb-2 mb-2.5">
       <!-- Project Logo Container -->
       <div class="print-logo-container">
         <svg version="1.0" xmlns="http://www.w3.org/2000/svg" height="48" width="112" preserveAspectRatio="xMidYMid meet" viewBox="0 0 1650 700" class="logo-svg">
@@ -963,13 +963,13 @@
 
       <!-- Shop Title in English and Separator -->
       <div class="print-shop-details">
-        <h1 class="english-title">ZAFAR TAILORING SHOP</h1>
-        <div class="scissors-divider">
+        <h1 class="english-title m-0">ZAFAR TAILORING SHOP</h1>
+        <div class="scissors-divider my-0.5">
           <span class="line"></span>
           <i class="pi pi-scissors"></i>
           <span class="line"></span>
         </div>
-        <p class="english-subtitle">Quality is Our Identity</p>
+        <p class="english-subtitle mt-0.5 mx-0 mb-0">Quality is Our Identity</p>
       </div>
 
       <!-- Contact Numbers -->
@@ -983,36 +983,36 @@
     </div>
 
     <!-- Metadata Section (Customer Name, Date, Booking Number, Delivery Date) -->
-    <div class="print-meta-grid">
-      <div class="meta-box">
-        <span class="meta-label">Booking #:</span>
+    <div class="print-meta-grid mb-2.5">
+      <div class="meta-box py-1.25 px-2">
+        <span class="meta-label mr-1">Booking #:</span>
         <span class="meta-val">{{ p.bookingNumber }}</span>
       </div>
-      <div class="meta-box">
-        <span class="meta-label">Date:</span>
+      <div class="meta-box py-1.25 px-2">
+        <span class="meta-label mr-1">Date:</span>
         <span class="meta-val">{{ p.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
       </div>
-      <div class="meta-box">
-        <span class="meta-label">Name</span>
+      <div class="meta-box py-1.25 px-2">
+        <span class="meta-label mr-1">Name</span>
         <span class="meta-val">{{ p.name }}</span>
       </div>
-      <div class="meta-box delivery-box">
-        <span class="meta-label">Delivery Date:</span>
+      <div class="meta-box delivery-box py-1.25 px-2">
+        <span class="meta-label mr-1">Delivery Date:</span>
         <span class="meta-val delivery-val">{{ p.deliveryDate | date: 'dd/MM/yyyy' }}</span>
       </div>
     </div>
 
     <!-- Measurements Receipt Container -->
-    <div class="print-receipt-container">
+    <div class="print-receipt-container mb-2.5">
       <!-- Kameez Group -->
-      <div class="print-group-header">قمیض</div>
+      <div class="print-group-header my-1 pb-1">قمیض</div>
       <div class="print-group-body print-kameez-columns">
         <div class="print-column left-column">
           <div class="print-receipt-row">
             <div class="print-receipt-label">
               <span class="urdu-text">سامنے پاکٹ</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.frontPocket ? 'ہاں' : 'نہیں')">
               {{ p.frontPocket ? 'ہاں (' + (p.frontPocketWidth || 5) + '"x' + (p.frontPocketHeight || 5.5) + '")' : 'نہیں' }}
             </div>
@@ -1022,7 +1022,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">سائیڈ پاکٹ</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.sidePockets ? 'ڈبل' : 'سنگل')">{{ p.sidePockets ? '| | ڈبل' : '| سنگل' }}</div>
           </div>
 
@@ -1030,7 +1030,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">پٹی چوڑی</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.frontPattiLength)">{{ p.frontPattiLength ? p.frontPattiLength + ' x ' + p.frontPattiWidth : '-' }}</div>
           </div>
 
@@ -1038,7 +1038,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">گلا</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(getNeckTypeUrdu(p.neckType))">
               {{ getNeckTypeUrdu(p.neckType) }}
             </div>
@@ -1048,7 +1048,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">کف چوڑا</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.cuffLength)">{{ p.cuffLength ? p.cuffLength + ' x ' + p.cuffWidth : '-' }}</div>
           </div>
 
@@ -1056,7 +1056,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">کف فٹنگ</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.cuffFit ? 'ہاں' : 'نہیں')">{{ p.cuffFit ? 'ہاں' : 'نہیں' }}</div>
           </div>
 
@@ -1064,7 +1064,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">کف ڈیزائن</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(getCuffStyleUrdu(p.cuffStyle))">{{ getCuffStyleUrdu(p.cuffStyle) }}</div>
           </div>
 
@@ -1072,7 +1072,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">کاج ڈیزائن</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(getButtonHoleStyleUrdu(p.cuffButtonHoleStyle))">{{ getButtonHoleStyleUrdu(p.cuffButtonHoleStyle) }}</div>
           </div>
 
@@ -1080,7 +1080,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">کاج ٹائپ</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(getButtonHoleTypeUrdu(p.cuffButtonHoleType))">{{ getButtonHoleTypeUrdu(p.cuffButtonHoleType) }}</div>
           </div>
 
@@ -1088,7 +1088,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">چاک پٹی بٹن</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.cuffPattiButton ? 'ہاں' : 'نہیں')">{{ p.cuffPattiButton ? 'ہاں' : 'نہیں' }}</div>
           </div>
 
@@ -1096,7 +1096,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">سلائی ڈیزائن</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(getStitchingTypeUrdu(p.stitchingType))">{{ getStitchingTypeUrdu(p.stitchingType) }}</div>
           </div>
 
@@ -1104,19 +1104,19 @@
             <div class="print-receipt-label">
               <span class="urdu-text">قمیض گیرہ</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.waistType ? (p.waistType === 'Straight' ? 'سیدھا' : 'گول') : '-')">
               {{ p.waistType ? (p.waistType === 'Straight' ? 'سیدھا' : 'گول') : '-' }}
             </div>
           </div>
         </div>
-        <div class="print-column-divider"></div>
+        <div class="print-column-divider my-1 mx-0"></div>
         <div class="print-column right-column">
           <div class="print-receipt-row">
             <div class="print-receipt-label">
               <span class="urdu-text">لمبائی</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.kameezLength)">
               {{ p.kameezLength || '-' }}
             </div>
@@ -1126,7 +1126,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">بازو</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.sleeve)">
               {{ p.sleeve || '-' }}
             </div>
@@ -1136,7 +1136,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">تیرا</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.shoulder)">
               {{ p.shoulder || '-' }}
             </div>
@@ -1146,7 +1146,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">گلا</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.neck)">
               {{ p.neck || '-' }}
             </div>
@@ -1156,7 +1156,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">چھاتی</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.chest)">
               {{ p.chest || '-' }}
             </div>
@@ -1166,7 +1166,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">گیرہ</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.waist)">
               {{ p.waist || '-' }}
             </div>
@@ -1176,7 +1176,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">موڈا</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.armholeWidth)">
               {{ p.armholeWidth || '-' }}
             </div>
@@ -1186,7 +1186,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">کراس</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.sleeveWidth)">
               {{ p.sleeveWidth || '-' }}
             </div>
@@ -1195,14 +1195,14 @@
       </div>
 
       <!-- Shalwar Group -->
-      <div class="print-group-header">شلوار</div>
+      <div class="print-group-header my-1 pb-1">شلوار</div>
       <div class="print-group-body print-shalwar-columns">
         <div class="print-column left-column">
           <div class="print-receipt-row">
             <div class="print-receipt-label">
               <span class="urdu-text">شلوار گیرہ</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.shalwarWaist)">{{ p.shalwarWaist || '-' }}</div>
           </div>
 
@@ -1210,7 +1210,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">آسن تیار</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.crotchDepth)">{{ p.crotchDepth || '-' }}</div>
           </div>
 
@@ -1218,17 +1218,17 @@
             <div class="print-receipt-label">
               <span class="urdu-text">شلوار پاکٹ</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.shalwarPocket ? 'ہاں' : 'نہیں')">{{ p.shalwarPocket ? 'ہاں' : 'نہیں' }}</div>
           </div>
         </div>
-        <div class="print-column-divider"></div>
+        <div class="print-column-divider my-1 mx-0"></div>
         <div class="print-column right-column">
           <div class="print-receipt-row">
             <div class="print-receipt-label">
               <span class="urdu-text">شلوار</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.shalwarLength)">
               {{ p.shalwarLength || '-' }}
             </div>
@@ -1238,7 +1238,7 @@
             <div class="print-receipt-label">
               <span class="urdu-text">پانچہ</span>
             </div>
-            <div class="print-receipt-leader"></div>
+            <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
             <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.ankleOpening)">
               {{ p.ankleOpening || '-' }}
             </div>
@@ -1249,32 +1249,32 @@
 
     <!-- Notes & Remarks Row if any -->
     @if (p.description || p.remarks) {
-      <div class="print-notes-box">
+      <div class="print-notes-box py-1.5 px-2 mt-4.5 mb-2.5">
         <span class="notes-title">Special Notes:</span>
         <span class="notes-content">{{ p.description }} {{ p.remarks ? '(' + p.remarks + ')' : '' }}</span>
       </div>
     }
 
     <!-- Footer Section -->
-    <div class="print-footer">
+    <div class="print-footer pt-2 mb-2">
       <!-- Centered Instructions -->
-      <div class="footer-instructions">
-        <h3 class="inst-title">اہم ہدایات</h3>
-        <ul class="inst-list">
-          <li>سوٹ تیار کرتے وقت ہمیشہ مقررہ وقت کا خاص خیال رکھیں۔</li>
-          <li>اگر کام مقررہ وقت پر تیار نہ ہوا تو ہم سوٹ کی قیمت کے ذمہ دار ہوں گے۔</li>
-          <li>سوٹ پر اسٹیکر نہ لگانے کی صورت میں 100 روپے جرمانہ کیا جائے گا۔</li>
+      <div class="footer-instructions flex flex-col items-center pl-0 pr-0">
+        <h3 class="inst-title my-0 mb-1 pt-0 px-2 pb-1.5">اہم ہدایات</h3>
+        <ul class="inst-list m-0 p-0">
+          <li class="p-0">سوٹ تیار کرتے وقت ہمیشہ مقررہ وقت کا خاص خیال رکھیں۔</li>
+          <li class="p-0">اگر کام مقررہ وقت پر تیار نہ ہوا تو ہم سوٹ کی قیمت کے ذمہ دار ہوں گے۔</li>
+          <li class="p-0">سوٹ پر اسٹیکر نہ لگانے کی صورت میں 100 روپے جرمانہ کیا جائے گا۔</li>
         </ul>
       </div>
     </div>
 
     <!-- Slogan bottom banner -->
-    <div class="print-slogan-banner">
+    <div class="print-slogan-banner pt-1.5">
       <span class="slogan-text">YOUR TRUST IS OUR IDENTITY</span>
     </div>
 
     <!-- Developer Credits -->
-    <div class="print-developer-credits">
+    <div class="print-developer-credits mt-1.25">
       Developed by
       <span class="mhi-text">MHI</span>
     </div>

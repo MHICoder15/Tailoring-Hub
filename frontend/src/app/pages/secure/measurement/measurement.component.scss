@@ -48,8 +48,6 @@
   .print-slip-card {
     width: 100%;
     max-width: 100%;
-    margin: 0;
-    padding: 15px;
     border: 3px double #0f2e5c; /* navy blue double border */
     border-radius: 12px;
     background-color: #ffffff;
@@ -65,8 +63,6 @@
       text-align: center;
       gap: 4px;
       border-bottom: 2px solid #0f2e5c;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
 
       .print-logo-container {
         display: flex;
@@ -87,14 +83,12 @@
         .english-title {
           font-size: 19px;
           font-weight: 800;
-          margin: 0;
           color: #0f2e5c;
           letter-spacing: 0.5px;
         }
 
         .english-subtitle {
           font-size: 9px;
-          margin: 2px 0 0 0;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
@@ -107,7 +101,6 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        margin: 2px 0;
         color: #0f2e5c;
 
         .line {
@@ -152,20 +145,17 @@
       display: grid;
       grid-template-columns: 1.15fr 0.85fr; /* booking number and date side-by-side */
       gap: 5px;
-      margin-bottom: 10px;
 
       .meta-box {
         display: flex;
         align-items: center;
         border: 1.5px solid #0f2e5c;
         border-radius: 6px;
-        padding: 5px 8px;
         background-color: #f7f9fc;
 
         .meta-label {
           font-size: 12px;
           font-weight: 800;
-          margin-right: 4px;
           white-space: nowrap;
         }
 
@@ -190,7 +180,6 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-bottom: 10px;
 
       .print-group-header {
         font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Segoe UI', Tahoma, sans-serif;
@@ -198,9 +187,7 @@
         font-weight: 800;
         text-transform: uppercase;
         text-align: center;
-        margin: 4px 0;
         border-bottom: 1.5px solid #0f2e5c;
-        padding-bottom: 4px;
         letter-spacing: 1px;
       }
 
@@ -228,7 +215,6 @@
             width: 1.5px;
             background-color: rgba(15, 46, 92, 0.25);
             align-self: stretch;
-            margin: 4px 0;
           }
         }
       }
@@ -266,7 +252,6 @@
         .print-receipt-leader {
           flex-grow: 1;
           border-bottom: 1.5px dotted rgba(15, 46, 92, 0.4);
-          margin: 0 6px 3px 6px;
         }
 
         .print-receipt-value {
@@ -288,9 +273,6 @@
     .print-notes-box {
       border: 1.5px dashed #0f2e5c;
       border-radius: 6px;
-      padding: 6px 8px;
-      margin-top: 18px;
-      margin-bottom: 10px;
       display: flex;
       gap: 4px;
       font-size: 12px;
@@ -311,32 +293,23 @@
       flex-direction: column;
       align-items: center;
       border-top: 1.5px solid #0f2e5c;
-      padding-top: 8px;
-      margin-bottom: 8px;
       gap: 6px;
 
       /* Instructions Section */
       .footer-instructions {
-        padding-left: 0px;
-        padding-right: 0px;
         width: 100%;
         font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Segoe UI', Tahoma, sans-serif;
 
         .inst-title {
           font-size: 12px;
           font-weight: 700;
-          margin: 0 auto 4px auto;
           background-color: #0f2e5c;
           color: #ffffff;
           width: fit-content;
-          padding: 0 8px 6px 8px;
           border-radius: 8px;
-          text-align: center;
         }
 
         .inst-list {
-          margin: 0;
-          padding: 0;
           list-style-type: none;
           font-size: 12px;
           line-height: 2;
@@ -345,7 +318,6 @@
 
           li {
             position: relative;
-            padding: 0;
 
             &::before {
               content: '• ';
@@ -363,7 +335,6 @@
     .print-slogan-banner {
       text-align: center;
       border-top: 1.5px solid #0f2e5c;
-      padding-top: 6px;
 
       .slogan-text {
         font-size: 10px;
@@ -378,7 +349,6 @@
       font-size: 14px;
       font-weight: 600;
       color: #64748b;
-      margin-top: 5px;
 
       .mhi-text {
         color: var(--primary-color); /* green brand color */
