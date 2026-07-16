@@ -21,6 +21,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageModule } from 'primeng/message';
 import { InputMaskModule } from 'primeng/inputmask';
 import { DatePickerModule } from 'primeng/datepicker';
+import { PrintMeasurementComponent } from './print-measurement/print-measurement.component';
 
 interface Column {
   field: string;
@@ -56,6 +57,7 @@ interface ExportColumn {
     MessageModule,
     InputMaskModule,
     DatePickerModule,
+    PrintMeasurementComponent,
   ],
   templateUrl: './measurement.component.html',
   styleUrls: ['./measurement.component.scss'],
@@ -296,39 +298,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     return `BK-${padded}`;
   }
 
-  getOptionUrdu(key: string | undefined, optionsList: { key: string, value: string }[]): string {
-    if (!key) return '-';
-    const found = optionsList.find(item => item.key === key);
-    if (!found) return key;
-    const parts = found.value.split('/');
-    return parts.length > 1 ? parts[1].trim() : found.value;
-  }
 
-  getNeckTypeUrdu(key: string | undefined): string {
-    return this.getOptionUrdu(key, this.neckTypes);
-  }
-
-  getStitchingTypeUrdu(key: string | undefined): string {
-    return this.getOptionUrdu(key, this.stitchingTypes);
-  }
-
-  getCuffStyleUrdu(key: string | undefined): string {
-    return this.getOptionUrdu(key, this.cuffStyles);
-  }
-
-  getButtonHoleStyleUrdu(key: string | undefined): string {
-    return this.getOptionUrdu(key, this.buttonHoleStyles);
-  }
-
-  getButtonHoleTypeUrdu(key: string | undefined): string {
-    return this.getOptionUrdu(key, this.buttonHoleTypes);
-  }
-
-  isUrdu(val: any): boolean {
-    if (!val) return false;
-    const str = String(val);
-    return /[\u0600-\u06FF]/.test(str);
-  }
 
   // ─── Submit ──────────────────────────────────────────────────────
 
@@ -432,7 +402,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
         reject: () => {
           localStorage.removeItem('measurement_draft');
           this.startFreshNewForm();
-        }
+        },
       });
     } else {
       this.startFreshNewForm();
@@ -482,7 +452,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
       reject: () => {
         this.measurementDialog = true;
         this.cdr.markForCheck();
-      }
+      },
     });
   }
 
@@ -499,7 +469,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
     try {
       const draft = {
         formValue: this.form.getRawValue(),
-        currentStep: this.currentStep
+        currentStep: this.currentStep,
       };
       localStorage.setItem('measurement_draft', JSON.stringify(draft));
     } catch (e) {
