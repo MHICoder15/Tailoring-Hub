@@ -1,3 +1,15 @@
+<ng-template #urduDropdownOptionTemplate let-option>
+  @if (option) {
+    <div>
+      {{ option.value.split('/')[0].trim() }}
+      @if (option.value.includes('/')) {
+        /
+        <span class="urdu-font font-semibold text-base">{{ option.value.split('/')[1].trim() }}</span>
+      }
+    </div>
+  }
+</ng-template>
+
 <p-toolbar class="mb-6">
   <ng-template #start>
     <p-button label="New Measurement" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNewMessageDialog()" />
@@ -285,7 +297,11 @@
               ) {
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    {{ field.label }}
+                    {{ field.label.split('/')[0].trim() }}
+                    @if (field.label.includes('/')) {
+                      /
+                      <span class="urdu-font">{{ field.label.split('/')[1].trim() }}</span>
+                    }
                     <span>*</span>
                   </label>
                   <div class="relative">
@@ -321,7 +337,8 @@
               <!-- Shalwar Length -->
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
-                  Shalwar Length / شلوار کی لمبائی
+                  Shalwar Length /
+                  <span class="urdu-font">شلوار کی لمبائی</span>
                   <span>*</span>
                 </label>
                 <div class="relative">
@@ -345,7 +362,8 @@
               <!-- Ankle Opening -->
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
-                  Shalwar Pancha / شلوار پانچہ
+                  Shalwar Pancha /
+                  <span class="urdu-font">شلوار پانچہ</span>
                   <span>*</span>
                 </label>
                 <div class="relative">
@@ -369,7 +387,8 @@
               <!-- Shalwar Pocket (Toggle) -->
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
-                  Shalwar Pocket / شلوار کی جیب
+                  Shalwar Pocket /
+                  <span class="urdu-font">شلوار کی جیب</span>
                   <span>*</span>
                 </label>
                 <div class="flex items-center gap-3 pt-2">
@@ -385,7 +404,8 @@
               <!-- Shalwar Waist -->
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
-                  Shalwar Ghera / شلوار گھیرا
+                  Shalwar Ghera /
+                  <span class="urdu-font">شلوار گھیرا</span>
                   <span>*</span>
                 </label>
                 <div class="relative">
@@ -410,7 +430,8 @@
               <!-- Crotch Depth -->
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
-                  Shalwar Asan / آسن تیار
+                  Shalwar Asan /
+                  <span class="urdu-font">آسن تیار</span>
                   <span>*</span>
                 </label>
                 <div class="relative">
@@ -452,7 +473,8 @@
                 <!-- Stitching Type -->
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Stitching Type / سلائی
+                    Stitching Type /
+                    <span class="urdu-font">سلائی</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -462,7 +484,14 @@
                     optionValue="key"
                     placeholder="Select Stitching Type"
                     [class.ng-invalid.ng-touched]="hasError('stitchingType')"
-                  ></p-select>
+                  >
+                    <ng-template #selectedItem let-selectedOption>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: selectedOption }"></ng-container>
+                    </ng-template>
+                    <ng-template #item let-opt>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: opt }"></ng-container>
+                    </ng-template>
+                  </p-select>
                   @if (getError('stitchingType')) {
                     <span class="error-msg">{{ getError('stitchingType') }}</span>
                   }
@@ -471,7 +500,8 @@
                 <!-- Waist Type -->
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Waist Type / گھیرا
+                    Waist Type /
+                    <span class="urdu-font">قمیض گیرہ</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -481,7 +511,14 @@
                     optionValue="key"
                     placeholder="Select Waist Type"
                     [class.ng-invalid.ng-touched]="hasError('waistType')"
-                  ></p-select>
+                  >
+                    <ng-template #selectedItem let-selectedOption>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: selectedOption }"></ng-container>
+                    </ng-template>
+                    <ng-template #item let-opt>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: opt }"></ng-container>
+                    </ng-template>
+                  </p-select>
                   @if (getError('waistType')) {
                     <span class="error-msg">{{ getError('waistType') }}</span>
                   }
@@ -490,17 +527,18 @@
                 <!-- Neck Type -->
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Neck Type / گلا
+                    Neck Type /
+                    <span class="urdu-font">گلا ٹائپ</span>
                     <span>*</span>
                   </label>
-                  <p-select
-                    formControlName="neckType"
-                    [options]="neckTypes"
-                    optionLabel="value"
-                    optionValue="key"
-                    placeholder="Select Neck Type"
-                    [class.ng-invalid.ng-touched]="hasError('neckType')"
-                  ></p-select>
+                  <p-select formControlName="neckType" [options]="neckTypes" optionLabel="value" optionValue="key" placeholder="Select Neck Type" [class.ng-invalid.ng-touched]="hasError('neckType')">
+                    <ng-template #selectedItem let-selectedOption>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: selectedOption }"></ng-container>
+                    </ng-template>
+                    <ng-template #item let-opt>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: opt }"></ng-container>
+                    </ng-template>
+                  </p-select>
                   @if (getError('neckType')) {
                     <span class="error-msg">{{ getError('neckType') }}</span>
                   }
@@ -518,7 +556,8 @@
                 <!-- Front Pocket -->
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Front Pocket / سامنے کی جیب
+                    Front Pocket /
+                    <span class="urdu-font">سامنے کی جیب</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">
@@ -535,7 +574,8 @@
                 @if (showPocketDimensions) {
                   <div class="flex flex-col gap-1.5">
                     <label class="form-label">
-                      Front Pocket Width / سامنے جیب کی چوڑائی
+                      Front Pocket Width /
+                      <span class="urdu-font">سامنے جیب کی چوڑائی</span>
                       <span>*</span>
                     </label>
                     <div class="relative">
@@ -558,7 +598,8 @@
 
                   <div class="flex flex-col gap-1.5">
                     <label class="form-label">
-                      Front Pocket Height / سامنے جیب کی لمبائی
+                      Front Pocket Height /
+                      <span class="urdu-font">سامنے جیب کی لمبائی</span>
                       <span>*</span>
                     </label>
                     <div class="relative">
@@ -583,7 +624,8 @@
                 <!-- Side Pockets -->
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Side Pockets / سائیڈ جیب
+                    Side Pockets /
+                    <span class="urdu-font">سائیڈ جیب</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">
@@ -598,7 +640,8 @@
 
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Front Patti Length / سامنے پٹی کی لمبائی
+                    Front Patti Length /
+                    <span class="urdu-font">سامنے پٹی کی لمبائی</span>
                     <span>*</span>
                   </label>
                   <div class="relative">
@@ -621,7 +664,8 @@
 
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Front Patti Width / سامنے پٹی کی چوڑائی
+                    Front Patti Width /
+                    <span class="urdu-font">سامنے پٹی کی چوڑائی</span>
                     <span>*</span>
                   </label>
                   <div class="relative">
@@ -653,7 +697,8 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Cuff Length / کف کی لمبائی
+                    Cuff Length /
+                    <span class="urdu-font">کف کی لمبائی</span>
                     <span>*</span>
                   </label>
                   <div class="relative">
@@ -676,7 +721,8 @@
 
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Cuff Width / کف کی چوڑائی
+                    Cuff Width /
+                    <span class="urdu-font">کف کی چوڑائی</span>
                     <span>*</span>
                   </label>
                   <div class="relative">
@@ -700,7 +746,8 @@
                 <!-- Cuff Fit Toggle -->
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Cuff Fit / کف کی فٹنگ
+                    Cuff Fit /
+                    <span class="urdu-font">کف کی فٹنگ</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">
@@ -715,7 +762,8 @@
 
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Cuff Style / کف ڈیزائن
+                    Cuff Style /
+                    <span class="urdu-font">کف ڈیزائن</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -725,7 +773,14 @@
                     optionValue="key"
                     placeholder="Select Cuff Style"
                     [class.ng-invalid.ng-touched]="hasError('cuffStyle')"
-                  ></p-select>
+                  >
+                    <ng-template #selectedItem let-selectedOption>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: selectedOption }"></ng-container>
+                    </ng-template>
+                    <ng-template #item let-opt>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: opt }"></ng-container>
+                    </ng-template>
+                  </p-select>
                   @if (getError('cuffStyle')) {
                     <span class="error-msg">{{ getError('cuffStyle') }}</span>
                   }
@@ -733,7 +788,8 @@
 
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Button Hole Style / کاج ڈیزائن
+                    Button Hole Style /
+                    <span class="urdu-font">کاج ڈیزائن</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -743,7 +799,14 @@
                     optionValue="key"
                     placeholder="Select Button Hole Style"
                     [class.ng-invalid.ng-touched]="hasError('cuffButtonHoleStyle')"
-                  ></p-select>
+                  >
+                    <ng-template #selectedItem let-selectedOption>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: selectedOption }"></ng-container>
+                    </ng-template>
+                    <ng-template #item let-opt>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: opt }"></ng-container>
+                    </ng-template>
+                  </p-select>
                   @if (getError('cuffButtonHoleStyle')) {
                     <span class="error-msg">{{ getError('cuffButtonHoleStyle') }}</span>
                   }
@@ -751,7 +814,8 @@
 
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Button Hole Type / کاج ٹائپ
+                    Button Hole Type /
+                    <span class="urdu-font">کاج ٹائپ</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -761,7 +825,14 @@
                     optionValue="key"
                     placeholder="Select Button Hole Type"
                     [class.ng-invalid.ng-touched]="hasError('cuffButtonHoleType')"
-                  ></p-select>
+                  >
+                    <ng-template #selectedItem let-selectedOption>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: selectedOption }"></ng-container>
+                    </ng-template>
+                    <ng-template #item let-opt>
+                      <ng-container *ngTemplateOutlet="urduDropdownOptionTemplate; context: { $implicit: opt }"></ng-container>
+                    </ng-template>
+                  </p-select>
                   @if (getError('cuffButtonHoleType')) {
                     <span class="error-msg">{{ getError('cuffButtonHoleType') }}</span>
                   }
@@ -769,7 +840,8 @@
 
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Chaak Patti Button / چاک پٹی بٹن
+                    Chaak Patti Button /
+                    <span class="urdu-font">چاک پٹی بٹن</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">
@@ -784,7 +856,8 @@
 
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
-                    Cuff Type / کف ٹائپ
+                    Cuff Type /
+                    <span class="urdu-font">کف ٹائپ</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">

@@ -1,20 +1,14 @@
 /* Default state: Hide the print area on screen */
 .print-slip-area {
   display: none;
-
-  /* Styles for printed page layout */
   @media print {
-    /* Hide the rest of the application */
     body * {
       visibility: hidden;
     }
-
-    /* Make only the print slip visible */
     &,
     & * {
       visibility: visible;
     }
-
     display: block !important;
     position: absolute;
     left: 0;
@@ -25,7 +19,6 @@
     background-color: #ffffff;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-
     @page {
       size: auto;
       margin: 10mm;
@@ -52,8 +45,6 @@
       }
 
       .print-shop-details {
-        text-align: center;
-
         .english-title {
           font-size: 19px;
           font-weight: 800;

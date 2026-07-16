@@ -32,6 +32,12 @@
   src: url('/fonts/NotoNastaliqUrdu-700.ttf') format('truetype');
 }
 
+.urdu-font {
+  font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Segoe UI', Tahoma, sans-serif !important;
+  color: inherit !important;
+  font-size: 12px !important;
+}
+
 @media print {
   /* Global overrides to hide Sakai layout elements during printing */
   .layout-topbar,

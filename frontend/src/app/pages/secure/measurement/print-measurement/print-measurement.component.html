@@ -65,8 +65,13 @@
               <span class="urdu-text">سامنے پاکٹ</span>
             </div>
             <div class="print-receipt-leader mt-0 mx-1.5 mb-0.75"></div>
-            <div class="print-receipt-value" [class.urdu-font]="isUrdu(p.frontPocket ? 'ہاں' : 'نہیں')">
-              {{ p.frontPocket ? 'ہاں (' + (p.frontPocketWidth || 5) + '"x' + (p.frontPocketHeight || 5.5) + '")' : 'نہیں' }}
+            <div class="print-receipt-value">
+              @if (p.frontPocket) {
+                <span class="urdu-font">ہاں</span>
+                <span>({{ p.frontPocketWidth || 5 }}x{{ p.frontPocketHeight || 5.5 }})</span>
+              } @else {
+                <span class="urdu-font">نہیں</span>
+              }
             </div>
           </div>
 
