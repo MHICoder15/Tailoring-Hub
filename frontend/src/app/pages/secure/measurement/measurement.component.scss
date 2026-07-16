@@ -48,33 +48,19 @@
   .print-slip-card {
     width: 100%;
     max-width: 100%;
-    border: 3px double #0f2e5c; /* navy blue double border */
+    border: 3px double #0f2e5c;
     border-radius: 12px;
     background-color: #ffffff;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #0f2e5c; /* navy blue color palette */
+    color: #0f2e5c;
     box-sizing: border-box;
 
-    /* Header Stacked Layout for narrow A4/DL paper */
     .print-header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 4px;
-      border-bottom: 2px solid #0f2e5c;
-
-      .print-logo-container {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-
-        .logo-svg {
-          color: #0f2e5c;
-          fill: currentColor;
-          height: 42px;
-          width: 90px;
-        }
+      .logo-svg {
+        color: #0f2e5c;
+        fill: currentColor;
+        height: 42px;
+        width: 90px;
       }
 
       .print-shop-details {
