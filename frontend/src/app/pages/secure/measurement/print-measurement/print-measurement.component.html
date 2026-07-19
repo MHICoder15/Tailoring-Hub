@@ -1,5 +1,5 @@
 <div class="print-slip-area">
-  <div class="print-slip-card p-4 m-0">
+  <div class="print-slip-card p-3">
     <!-- Header Section -->
     <div class="print-header pb-2 mb-2.5 border-b-2 border-solid border-[#0f2e5c]">
       <!-- Project Logo Container -->
@@ -14,7 +14,7 @@
       </div>
 
       <!-- Shop Title in English and Separator -->
-      <div class="print-shop-details">
+      <div class="print-shop-details text-center">
         <h1 class="english-title m-0">ZAFAR TAILORING SHOP</h1>
         <div class="scissors-divider my-0.5">
           <span class="line"></span>
@@ -49,7 +49,7 @@
         <span class="meta-val">{{ p.name }}</span>
       </div>
       <div class="meta-box delivery-box py-1.25 px-2">
-        <span class="meta-label mr-1">Delivery Date:</span>
+        <span class="meta-label mr-1">Del. Date:</span>
         <span class="meta-val delivery-val">{{ p.deliveryDate | date: 'dd/MM/yyyy' }}</span>
       </div>
     </div>
@@ -306,17 +306,17 @@
 
     <!-- Notes & Remarks Row if any -->
     @if (p.description || p.remarks) {
-      <div class="print-notes-box py-1.5 px-2 mt-4.5 mb-2.5">
+      <div class="print-notes-box py-1 px-1.5 mt-2 mb-1.5">
         <span class="notes-title">Special Notes:</span>
         <span class="notes-content">{{ p.description }} {{ p.remarks ? '(' + p.remarks + ')' : '' }}</span>
       </div>
     }
 
     <!-- Footer Section -->
-    <div class="print-footer pt-2 mb-2">
+    <div class="print-footer pt-1 mb-1">
       <!-- Centered Instructions -->
       <div class="footer-instructions flex flex-col items-center pl-0 pr-0">
-        <h3 class="inst-title my-0 mb-1 pt-0 px-2 pb-1.5">اہم ہدایات</h3>
+        <h3 class="inst-title my-0 mb-0.75 pt-0 px-1.5 pb-1">اہم ہدایات</h3>
         <ul class="inst-list m-0 p-0">
           <li class="p-0">سوٹ تیار کرتے وقت ہمیشہ مقررہ وقت کا خاص خیال رکھیں۔</li>
           <li class="p-0">اگر کام مقررہ وقت پر تیار نہ ہوا تو ہم سوٹ کی قیمت کے ذمہ دار ہوں گے۔</li>
@@ -326,12 +326,12 @@
     </div>
 
     <!-- Slogan bottom banner -->
-    <div class="print-slogan-banner pt-1.5">
+    <div class="print-slogan-banner pt-1">
       <span class="slogan-text">YOUR TRUST IS OUR IDENTITY</span>
     </div>
 
     <!-- Developer Credits -->
-    <div class="print-developer-credits mt-1.25">
+    <div class="print-developer-credits mt-0.75">
       Developed by
       <span class="mhi-text">MHI</span>
     </div>

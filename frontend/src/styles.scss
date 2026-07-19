@@ -32,13 +32,29 @@
   src: url('/fonts/NotoNastaliqUrdu-700.ttf') format('truetype');
 }
 
-.urdu-font {
+.urdu-form-font {
   font-family: 'Noto Nastaliq Urdu', 'Urdu Typesetting', 'Segoe UI', Tahoma, sans-serif !important;
   color: inherit !important;
   font-size: 12px !important;
 }
 
 @media print {
+  @page {
+    margin: 0;
+  }
+
+  html, body,
+  .layout-wrapper,
+  .layout-main-container,
+  .layout-main,
+  .layout-content,
+  .card {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
   /* Global overrides to hide Sakai layout elements during printing */
   .layout-topbar,
   .layout-sidebar,
@@ -52,13 +68,8 @@
   p-table,
   p-button,
   p-iconfield,
-  p-inputicon {
+  p-inputicon,
+  p-toolbar {
     display: none !important;
-  }
-
-  .layout-main-container {
-    margin-left: 0 !important;
-    margin-top: 0 !important;
-    padding: 0 !important;
   }
 }

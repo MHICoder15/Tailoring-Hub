@@ -1,12 +1,6 @@
 import { Component, Input, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  NECK_TYPES,
-  STITCHING_TYPES,
-  CUFF_STYLES,
-  BUTTON_HOLE_STYLES,
-  BUTTON_HOLE_TYPES,
-} from '../../../../core/models/measurement.model';
+import { NECK_TYPES, STITCHING_TYPES, CUFF_STYLES, BUTTON_HOLE_STYLES, BUTTON_HOLE_TYPES } from '../../../../core/models/measurement.model';
 
 @Component({
   selector: 'app-print-measurement',

@@ -4,7 +4,7 @@
       {{ option.value.split('/')[0].trim() }}
       @if (option.value.includes('/')) {
         /
-        <span class="urdu-font font-semibold text-base">{{ option.value.split('/')[1].trim() }}</span>
+        <span class="urdu-form-font">{{ option.value.split('/')[1].trim() }}</span>
       }
     </div>
   }
@@ -300,7 +300,7 @@
                     {{ field.label.split('/')[0].trim() }}
                     @if (field.label.includes('/')) {
                       /
-                      <span class="urdu-font">{{ field.label.split('/')[1].trim() }}</span>
+                      <span class="urdu-form-font">{{ field.label.split('/')[1].trim() }}</span>
                     }
                     <span>*</span>
                   </label>
@@ -338,7 +338,7 @@
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
                   Shalwar Length /
-                  <span class="urdu-font">شلوار کی لمبائی</span>
+                  <span class="urdu-form-font">شلوار کی لمبائی</span>
                   <span>*</span>
                 </label>
                 <div class="relative">
@@ -363,7 +363,7 @@
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
                   Shalwar Pancha /
-                  <span class="urdu-font">شلوار پانچہ</span>
+                  <span class="urdu-form-font">شلوار پانچہ</span>
                   <span>*</span>
                 </label>
                 <div class="relative">
@@ -388,7 +388,7 @@
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
                   Shalwar Pocket /
-                  <span class="urdu-font">شلوار کی جیب</span>
+                  <span class="urdu-form-font">شلوار کی جیب</span>
                   <span>*</span>
                 </label>
                 <div class="flex items-center gap-3 pt-2">
@@ -405,7 +405,7 @@
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
                   Shalwar Ghera /
-                  <span class="urdu-font">شلوار گھیرا</span>
+                  <span class="urdu-form-font">شلوار گھیرا</span>
                   <span>*</span>
                 </label>
                 <div class="relative">
@@ -431,7 +431,7 @@
               <div class="flex flex-col gap-1.5">
                 <label class="form-label">
                   Shalwar Asan /
-                  <span class="urdu-font">آسن تیار</span>
+                  <span class="urdu-form-font">آسن تیار</span>
                   <span>*</span>
                 </label>
                 <div class="relative">
@@ -474,7 +474,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Stitching Type /
-                    <span class="urdu-font">سلائی</span>
+                    <span class="urdu-form-font">سلائی</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -501,7 +501,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Waist Type /
-                    <span class="urdu-font">قمیض گیرہ</span>
+                    <span class="urdu-form-font">قمیض گیرہ</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -528,7 +528,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Neck Type /
-                    <span class="urdu-font">گلا ٹائپ</span>
+                    <span class="urdu-form-font">گلا ٹائپ</span>
                     <span>*</span>
                   </label>
                   <p-select formControlName="neckType" [options]="neckTypes" optionLabel="value" optionValue="key" placeholder="Select Neck Type" [class.ng-invalid.ng-touched]="hasError('neckType')">
@@ -557,7 +557,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Front Pocket /
-                    <span class="urdu-font">سامنے کی جیب</span>
+                    <span class="urdu-form-font">سامنے کی جیب</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">
@@ -575,7 +575,7 @@
                   <div class="flex flex-col gap-1.5">
                     <label class="form-label">
                       Front Pocket Width /
-                      <span class="urdu-font">سامنے جیب کی چوڑائی</span>
+                      <span class="urdu-form-font">سامنے جیب کی چوڑائی</span>
                       <span>*</span>
                     </label>
                     <div class="relative">
@@ -599,7 +599,7 @@
                   <div class="flex flex-col gap-1.5">
                     <label class="form-label">
                       Front Pocket Height /
-                      <span class="urdu-font">سامنے جیب کی لمبائی</span>
+                      <span class="urdu-form-font">سامنے جیب کی لمبائی</span>
                       <span>*</span>
                     </label>
                     <div class="relative">
@@ -625,7 +625,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Side Pockets /
-                    <span class="urdu-font">سائیڈ جیب</span>
+                    <span class="urdu-form-font">سائیڈ جیب</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">
@@ -641,7 +641,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Front Patti Length /
-                    <span class="urdu-font">سامنے پٹی کی لمبائی</span>
+                    <span class="urdu-form-font">سامنے پٹی کی لمبائی</span>
                     <span>*</span>
                   </label>
                   <div class="relative">
@@ -665,7 +665,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Front Patti Width /
-                    <span class="urdu-font">سامنے پٹی کی چوڑائی</span>
+                    <span class="urdu-form-font">سامنے پٹی کی چوڑائی</span>
                     <span>*</span>
                   </label>
                   <div class="relative">
@@ -698,7 +698,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Cuff Length /
-                    <span class="urdu-font">کف کی لمبائی</span>
+                    <span class="urdu-form-font">کف کی لمبائی</span>
                     <span>*</span>
                   </label>
                   <div class="relative">
@@ -722,7 +722,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Cuff Width /
-                    <span class="urdu-font">کف کی چوڑائی</span>
+                    <span class="urdu-form-font">کف کی چوڑائی</span>
                     <span>*</span>
                   </label>
                   <div class="relative">
@@ -747,7 +747,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Cuff Fit /
-                    <span class="urdu-font">کف کی فٹنگ</span>
+                    <span class="urdu-form-font">کف کی فٹنگ</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">
@@ -763,7 +763,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Cuff Style /
-                    <span class="urdu-font">کف ڈیزائن</span>
+                    <span class="urdu-form-font">کف ڈیزائن</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -789,7 +789,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Button Hole Style /
-                    <span class="urdu-font">کاج ڈیزائن</span>
+                    <span class="urdu-form-font">کاج ڈیزائن</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -815,7 +815,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Button Hole Type /
-                    <span class="urdu-font">کاج ٹائپ</span>
+                    <span class="urdu-form-font">کاج ٹائپ</span>
                     <span>*</span>
                   </label>
                   <p-select
@@ -841,7 +841,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Chaak Patti Button /
-                    <span class="urdu-font">چاک پٹی بٹن</span>
+                    <span class="urdu-form-font">چاک پٹی بٹن</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">
@@ -857,7 +857,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="form-label">
                     Cuff Type /
-                    <span class="urdu-font">کف ٹائپ</span>
+                    <span class="urdu-form-font">کف ٹائپ</span>
                     <span>*</span>
                   </label>
                   <div class="flex items-center gap-3 pt-2">
