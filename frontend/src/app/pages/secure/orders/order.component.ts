@@ -252,6 +252,7 @@ export class OrderComponent implements OnInit {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order updated successfully' });
           this.orderDialog = false;
           this.loadOrders();
+          this.loadMeasurements();
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Failed to update order' });
@@ -263,6 +264,7 @@ export class OrderComponent implements OnInit {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully' });
           this.orderDialog = false;
           this.loadOrders();
+          this.loadMeasurements();
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Failed to create order' });

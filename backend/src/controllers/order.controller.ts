@@ -78,6 +78,13 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
       balance: calculatedBalance,
     });
 
+    // Synchronize financial updates to the linked measurement
+    await measurementModel.findByIdAndUpdate(measurementId, {
+      totalCost: total,
+      advancePayment: paid,
+      remainingBalance: calculatedBalance,
+    });
+
     const populatedOrder = await orderModel.findById(newOrder._id).populate("measurementId");
 
     res.status(201).json(new ApiResponse(201, populatedOrder, "Order created successfully"));
@@ -151,11 +158,13 @@ const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
     const paid = amountPaid !== undefined ? Number(amountPaid) : existingOrder.amountPaid;
     const calculatedBalance = total - paid;
 
+    const targetMeasurementId = measurementId || existingOrder.measurementId;
+
     const updatedOrder = await orderModel.findByIdAndUpdate(
       orderId,
       {
         orderNumber: orderNumber || existingOrder.orderNumber,
-        measurementId: measurementId || existingOrder.measurementId,
+        measurementId: targetMeasurementId,
         status: status || existingOrder.status,
         priority: priority || existingOrder.priority,
         orderDate: orderDate || existingOrder.orderDate,
@@ -170,6 +179,15 @@ const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
       },
       { new: true, runValidators: true }
     ).populate("measurementId");
+
+    // Synchronize financial updates to the linked measurement
+    if (targetMeasurementId) {
+      await measurementModel.findByIdAndUpdate(targetMeasurementId, {
+        totalCost: total,
+        advancePayment: paid,
+        remainingBalance: calculatedBalance,
+      });
+    }
 
     res.status(200).json(new ApiResponse(200, updatedOrder, "Order updated successfully"));
   } catch (err) {

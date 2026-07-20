@@ -1,5 +1,6 @@
 import { type NextFunction, type Request, type Response } from "express";
 import measurementModel from "../models/measurement.model.ts";
+import orderModel from "../models/order.model.ts";
 import createHttpError from "http-errors";
 import type { Measurement } from "../interfaces/measurement.interface.ts";
 import { ApiResponse } from "../utils/api-response.ts";
@@ -297,13 +298,25 @@ const updateMeasurement = async (req: Request, res: Response, next: NextFunction
         cuffPattiButton: cuffPattiButton !== undefined ? cuffPattiButton : measurement.cuffPattiButton,
         description: description !== undefined ? description : measurement.description,
         previousBalance: previousBalance !== undefined ? previousBalance : measurement.previousBalance,
-        totalCost: totalCost !== undefined ? totalCost : measurement.totalCost,
-        advancePayment: advancePayment !== undefined ? advancePayment : measurement.advancePayment,
-        remainingBalance: remainingBalance !== undefined ? remainingBalance : measurement.remainingBalance,
+        totalCost: totalCost !== undefined ? Number(totalCost) : measurement.totalCost,
+        advancePayment: advancePayment !== undefined ? Number(advancePayment) : measurement.advancePayment,
+        remainingBalance: remainingBalance !== undefined ? Number(remainingBalance) : measurement.remainingBalance,
         remarks: remarks !== undefined ? remarks : measurement.remarks,
       },
       { returnDocument: "after" },
     );
+
+    if (updateMeasurement) {
+      await orderModel.updateMany(
+        { measurementId: updateMeasurement._id },
+        {
+          totalAmount: updateMeasurement.totalCost,
+          amountPaid: updateMeasurement.advancePayment,
+          balance: updateMeasurement.remainingBalance,
+        }
+      );
+    }
+
     // Response
     res.json(new ApiResponse(200, { id: updateMeasurement?._id }, "✅ Measurement updated successfully."));
   } catch (error) {
