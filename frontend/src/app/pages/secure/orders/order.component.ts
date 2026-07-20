@@ -14,6 +14,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { OrderService } from '@/app/core/services/order.service';
@@ -39,6 +40,7 @@ import { Order, ORDER_STATUSES, ORDER_PRIORITIES, OrderStatus, OrderPriority } f
     ConfirmDialogModule,
     ToastModule,
     ToggleSwitchModule,
+    TooltipModule,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './order.component.html',

@@ -10,110 +10,114 @@
   }
 </ng-template>
 
-<p-toolbar class="mb-6">
-  <ng-template #start>
-    <p-button label="New Measurement" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNewMessageDialog()" />
-  </ng-template>
-
-  <ng-template #end>
-    <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
-  </ng-template>
-</p-toolbar>
-
-<p-table
-  #dt
-  [value]="measurementsList()"
-  [rows]="10"
-  [columns]="cols"
-  [paginator]="true"
-  [globalFilterFields]="['name', 'bookingNumber', 'phoneNumber']"
-  [tableStyle]="{ 'min-width': '75rem' }"
-  [rowHover]="true"
-  dataKey="id"
-  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} measurements"
-  [showCurrentPageReport]="true"
-  [rowsPerPageOptions]="[10, 20, 30]"
->
-  <ng-template #caption>
-    <div class="flex items-center justify-between">
-      <div class="heading">
-        <h5 class="m-0">Measurements</h5>
-        <p>Customer measurement records</p>
-      </div>
-      <p-iconfield>
-        <p-inputicon class="pi pi-search" />
-        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
-      </p-iconfield>
+<div class="card">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+    <div>
+      <h3 class="text-2xl font-bold text-slate-800 m-0">Measurement Management</h3>
+      <p class="text-slate-500 text-sm m-0">Manage customer tailoring measurements, suit parameters, and profiles</p>
     </div>
-  </ng-template>
-  <ng-template #header>
-    <tr>
-      <th pSortableColumn="name" style="min-width: 16rem">
-        Customer Name
-        <p-sortIcon field="name" />
-      </th>
-      <th pSortableColumn="bookingNumber" style="min-width: 8rem">
-        Booking #
-        <p-sortIcon field="bookingNumber" />
-      </th>
-      <th pSortableColumn="phoneNumber" style="min-width: 10rem">
-        Phone
-        <p-sortIcon field="phoneNumber" />
-      </th>
-      <th pSortableColumn="dateOfBooking" style="min-width: 12rem">
-        Start Date
-        <p-sortIcon field="dateOfBooking" />
-      </th>
-      <th pSortableColumn="deliveryDate" style="min-width: 12rem">
-        Delivery Date
-        <p-sortIcon field="deliveryDate" />
-      </th>
-      <th pSortableColumn="totalCost" style="min-width: 8rem">
-        Previous
-        <p-sortIcon field="totalCost" />
-      </th>
-      <th pSortableColumn="totalCost" style="min-width: 8rem">
-        Total Cost
-        <p-sortIcon field="totalCost" />
-      </th>
-      <th pSortableColumn="remainingBalance" style="min-width: 8rem">
-        Balance
-        <p-sortIcon field="remainingBalance" />
-      </th>
-      <th style="min-width: 12rem">Actions</th>
-    </tr>
-  </ng-template>
-  <ng-template #emptymessage>
-    <tr>
-      <td colspan="9">
-        <div class="flex flex-col items-center justify-center py-8">
-          <i class="pi pi-inbox text-color-secondary mb-4" style="font-size: 2.5rem"></i>
-          <p class="text-lg font-semibold m-0 mb-2">No measurements yet</p>
-          <p class="text-color-secondary m-0">Record your first customer measurement to get started.</p>
+    <div class="flex items-center gap-2">
+      <button pButton label="New Measurement" icon="pi pi-plus" class="p-button-primary" (click)="openNewMessageDialog()"></button>
+    </div>
+  </div>
+
+  <p-table
+    #dt
+    [value]="measurementsList()"
+    [rows]="10"
+    [paginator]="true"
+    [globalFilterFields]="['name', 'bookingNumber', 'phoneNumber']"
+    [tableStyle]="{ 'min-width': '65rem' }"
+    [rowHover]="true"
+    dataKey="_id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} measurements"
+    [showCurrentPageReport]="true"
+  >
+    <ng-template #caption>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-lg">Measurements List</span>
         </div>
-      </td>
-    </tr>
-  </ng-template>
-  <ng-template #body let-measurement>
-    <tr>
-      <td style="min-width: 10rem">{{ measurement.name }}</td>
-      <td style="min-width: 8rem"><p-tag [value]="measurement.bookingNumber" [rounded]="true"></p-tag></td>
-      <td style="min-width: 10rem">{{ measurement.phoneNumber }}</td>
-      <td>{{ measurement.dateOfBooking | date }}</td>
-      <td>{{ measurement.deliveryDate | date }}</td>
-      <td>Rs {{ measurement.previousBalance | currency: 'PKR' : '' : '1.0-0' }}</td>
-      <td>Rs {{ measurement.totalCost | currency: 'PKR' : '' : '1.0-0' }}</td>
-      <td [ngClass]="['tabular-nums', measurement.remainingBalance > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400']">
-        Rs {{ measurement.remainingBalance | currency: 'PKR' : '' : '1.0-0' }}
-      </td>
-      <td>
-        <p-button icon="pi pi-print" class="mr-2" severity="success" [rounded]="true" [outlined]="true" (click)="printMeasurement(measurement)" />
-        <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editMeasurement(measurement)" />
-        <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" (click)="deleteMeasurement(measurement)" />
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
+
+        <p-iconfield iconPosition="left">
+          <p-inputicon class="pi pi-search"></p-inputicon>
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search customer, booking #, phone..." />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="bookingNumber">
+          Booking #
+          <p-sortIcon field="bookingNumber"></p-sortIcon>
+        </th>
+        <th pSortableColumn="name">
+          Customer Name
+          <p-sortIcon field="name"></p-sortIcon>
+        </th>
+        <th pSortableColumn="phoneNumber">
+          Phone Number
+          <p-sortIcon field="phoneNumber"></p-sortIcon>
+        </th>
+        <th pSortableColumn="dateOfBooking">
+          Dates (Book / Delivery)
+          <p-sortIcon field="dateOfBooking"></p-sortIcon>
+        </th>
+        <th pSortableColumn="totalCost">
+          Total / Balance
+          <p-sortIcon field="totalCost"></p-sortIcon>
+        </th>
+        <th style="min-width: 8rem">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-measurement>
+      <tr>
+        <td><p-tag [value]="measurement.bookingNumber" [rounded]="true"></p-tag></td>
+        <td>
+          <span class="font-semibold text-slate-800">{{ measurement.name }}</span>
+        </td>
+        <td>
+          <span class="text-slate-600 text-sm">{{ measurement.phoneNumber || '-' }}</span>
+        </td>
+        <td>
+          <div class="text-sm">
+            <span class="text-slate-600 block text-xs">Booked: {{ measurement.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
+            <span class="font-semibold text-slate-800 block">Delivery: {{ measurement.deliveryDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        </td>
+        <td>
+          <div class="text-sm">
+            <span class="font-semibold text-slate-800 block">Rs. {{ measurement.totalCost | number: '1.0-0' }}</span>
+            <span [class.text-red-600]="measurement.remainingBalance > 0" [class.text-emerald-600]="measurement.remainingBalance <= 0" class="text-xs font-semibold block">
+              {{ measurement.remainingBalance > 0 ? 'Bal: Rs. ' + (measurement.remainingBalance | number: '1.0-0') : 'Paid in Full' }}
+            </span>
+          </div>
+        </td>
+        <td>
+          <div class="flex items-center gap-1">
+            <button pButton icon="pi pi-print" class="p-button-text p-button-rounded p-button-success" (click)="printMeasurement(measurement)" pTooltip="Print Measurement"></button>
+            <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-info" (click)="editMeasurement(measurement)" pTooltip="Edit Measurement"></button>
+            <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger" (click)="deleteMeasurement(measurement)" pTooltip="Delete Measurement"></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6">
+          <div class="flex flex-col items-center justify-center py-8">
+            <i class="pi pi-inbox text-color-secondary mb-2" style="font-size: 2rem"></i>
+            <p class="text-lg font-semibold m-0 mb-2">No measurements found</p>
+            <p class="text-color-secondary m-0">Click "New Measurement" to record a new customer measurement.</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
 
 <p-dialog [visible]="measurementDialog" (visibleChange)="onVisibleChange($event)" [closable]="false" [closeOnEscape]="false" [style]="{ width: '800px' }" [modal]="true">
   <ng-template #header>

@@ -21,6 +21,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MessageModule } from 'primeng/message';
 import { InputMaskModule } from 'primeng/inputmask';
 import { DatePickerModule } from 'primeng/datepicker';
+import { TooltipModule } from 'primeng/tooltip';
 import { PrintMeasurementComponent } from './print-measurement/print-measurement.component';
 
 interface Column {
@@ -57,6 +58,7 @@ interface ExportColumn {
     MessageModule,
     InputMaskModule,
     DatePickerModule,
+    TooltipModule,
     PrintMeasurementComponent,
   ],
   templateUrl: './measurement.component.html',
