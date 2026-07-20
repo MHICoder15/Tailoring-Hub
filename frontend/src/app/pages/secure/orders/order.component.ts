@@ -178,8 +178,11 @@ export class OrderComponent implements OnInit {
     if (selectedId) {
       const measurement = this.measurementsList().find((m) => m._id === selectedId);
       if (measurement) {
-        // Pre-fill delivery date & amounts if available from measurement record
+        // Pre-fill booking date, delivery date & amounts from measurement record
         const patchData: any = {};
+        if (measurement.dateOfBooking) {
+          patchData.orderDate = new Date(measurement.dateOfBooking);
+        }
         if (measurement.deliveryDate) {
           patchData.expectedDeliveryDate = new Date(measurement.deliveryDate);
         }
@@ -225,9 +228,17 @@ export class OrderComponent implements OnInit {
 
   saveOrder(): void {
     this.submitted = true;
+    this.orderForm.markAllAsTouched();
+    Object.keys(this.orderForm.controls).forEach((key) => {
+      const ctrl = this.orderForm.get(key);
+      if (ctrl) {
+        ctrl.markAsTouched();
+        ctrl.markAsDirty();
+      }
+    });
 
     if (this.orderForm.invalid) {
-      this.messageService.add({ severity: 'warn', summary: 'Validation Error', detail: 'Please fill all required fields correctly' });
+      this.messageService.add({ severity: 'error', summary: 'Error Message', detail: 'Please fix the highlighted errors before saving.' });
       return;
     }
 
@@ -311,5 +322,30 @@ export class OrderComponent implements OnInit {
         },
       });
     }
+  }
+
+  hasError(controlName: string): boolean {
+    const ctrl = this.orderForm.get(controlName);
+    return !!(ctrl && (ctrl.touched || this.submitted) && ctrl.invalid);
+  }
+
+  getError(controlName: string): string | null {
+    const ctrl = this.orderForm.get(controlName);
+    if (!ctrl || (!ctrl.touched && !this.submitted) || !ctrl.invalid) return null;
+
+    if (ctrl.errors?.['required']) {
+      const labels: { [key: string]: string } = {
+        measurementId: 'Customer measurement',
+        status: 'Order status',
+        priority: 'Priority',
+        orderDate: 'Booking date',
+        expectedDeliveryDate: 'Expected delivery date',
+        totalAmount: 'Total amount',
+        amountPaid: 'Amount paid',
+      };
+      return `${labels[controlName] || controlName} is required`;
+    }
+    if (ctrl.errors?.['min']) return 'Value must be 0 or greater';
+    return 'Invalid value';
   }
 }

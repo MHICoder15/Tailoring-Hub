@@ -38,12 +38,59 @@
   font-size: 12px !important;
 }
 
+/* Global invalid red border, red placeholder, and error message styling */
+.p-select[invalid='true'],
+.p-select.p-invalid,
+.p-select.ng-invalid,
+p-select.ng-invalid .p-select,
+p-select[invalid='true'] .p-select,
+p-select.ng-invalid.ng-touched .p-select,
+p-select.ng-invalid.ng-dirty .p-select {
+  border-color: var(--p-inputtext-invalid-border-color) !important;
+
+  .p-select-label.p-placeholder,
+  .p-select-label {
+    color: var(--p-inputtext-invalid-border-color) !important;
+  }
+}
+
+.p-datepicker[invalid='true'],
+.p-datepicker.p-invalid,
+.p-datepicker.ng-invalid,
+p-datepicker.ng-invalid .p-datepicker,
+p-datepicker[invalid='true'] .p-datepicker,
+p-datepicker.ng-invalid.ng-touched .p-datepicker,
+p-datepicker.ng-invalid.ng-dirty .p-datepicker {
+  border-color: var(--p-inputtext-invalid-border-color) !important;
+}
+
+.p-inputtext[invalid='true'],
+.p-inputtext.p-invalid,
+.p-inputtext.ng-invalid,
+input.ng-invalid,
+input.ng-invalid.ng-touched,
+input.ng-invalid.ng-dirty {
+  border-color: var(--p-inputtext-invalid-border-color) !important;
+
+  &::placeholder {
+    color: var(--p-inputtext-invalid-border-color) !important;
+  }
+}
+
+.error-msg {
+  color: var(--p-inputtext-invalid-border-color);
+  font-size: 0.85rem;
+  display: block;
+  margin-top: 0.25rem;
+}
+
 @media print {
   @page {
     margin: 0;
   }
 
-  html, body,
+  html,
+  body,
   .layout-wrapper,
   .layout-main-container,
   .layout-main,

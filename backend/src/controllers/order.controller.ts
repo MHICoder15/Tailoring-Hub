@@ -22,8 +22,8 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
   } = req.body;
 
   // Validation
-  if (!measurementId || !expectedDeliveryDate || totalAmount === undefined) {
-    const error = createHttpError(400, "Measurement ID, expected delivery date, and total amount are required");
+  if (!measurementId || totalAmount === undefined) {
+    const error = createHttpError(400, "Measurement ID and total amount are required");
     return next(error);
   }
 
@@ -59,13 +59,16 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     const total = Number(totalAmount || 0);
     const calculatedBalance = total - paid;
 
+    const finalOrderDate = orderDate ? new Date(orderDate) : (measurement.dateOfBooking || new Date());
+    const finalDeliveryDate = expectedDeliveryDate ? new Date(expectedDeliveryDate) : (measurement.deliveryDate || new Date());
+
     const newOrder: Order = await orderModel.create({
       orderNumber: finalOrderNumber,
       measurementId,
       status: status || "PENDING",
       priority: priority || "NORMAL",
-      orderDate: orderDate || new Date(),
-      expectedDeliveryDate,
+      orderDate: finalOrderDate,
+      expectedDeliveryDate: finalDeliveryDate,
       assignedTailor,
       fabricProvided: fabricProvided === undefined ? false : Boolean(fabricProvided),
       fabricDetails,

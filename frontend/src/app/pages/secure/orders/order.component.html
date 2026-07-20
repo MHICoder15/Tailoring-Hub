@@ -63,7 +63,7 @@
           <p-sortIcon field="assignedTailor"></p-sortIcon>
         </th>
         <th pSortableColumn="expectedDeliveryDate">
-          Delivery Date
+          Dates (Book / Del.)
           <p-sortIcon field="expectedDeliveryDate"></p-sortIcon>
         </th>
         <th>Total / Balance</th>
@@ -96,7 +96,10 @@
           </span>
         </td>
         <td>
-          <span class="text-sm">{{ order.expectedDeliveryDate | date: 'dd/MM/yyyy' }}</span>
+          <div class="text-sm">
+            <span class="text-slate-600 block text-xs">Booked: {{ order.orderDate || order.measurementId?.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
+            <span class="font-semibold text-slate-800 block">Del.: {{ order.expectedDeliveryDate || order.measurementId?.deliveryDate | date: 'dd/MM/yyyy' }}</span>
+          </div>
         </td>
         <td>
           <div class="text-sm">
@@ -135,15 +138,15 @@
     <form [formGroup]="orderForm" class="flex flex-col gap-4 py-2">
       <!-- Order Number & Customer Measurement Selection -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="font-semibold block mb-1">Order #</label>
+        <div class="flex flex-col gap-1.5">
+          <label class="form-label">Order #</label>
           <input pInputText formControlName="orderNumber" class="w-full" />
         </div>
 
-        <div>
-          <label class="font-semibold block mb-1">
+        <div class="flex flex-col gap-1.5">
+          <label class="form-label">
             Customer Measurement
-            <span class="text-red-500">*</span>
+            <span>*</span>
           </label>
           <p-select
             formControlName="measurementId"
@@ -155,40 +158,86 @@
             filterBy="name,bookingNumber,phoneNumber"
             (onChange)="onMeasurementSelected($event)"
             class="w-full"
+            [invalid]="hasError('measurementId')"
+            [class.ng-invalid]="hasError('measurementId')"
+            [class.ng-touched]="hasError('measurementId')"
           >
-            <ng-template #option let-item>
-              <div>
-                <span class="font-semibold">{{ item.name }}</span>
-                <span class="text-xs text-slate-500 block">Booking: {{ item.bookingNumber }} | Phone: {{ item.phoneNumber }}</span>
+            <ng-template #selectedItem let-selectedOption>
+              @if (selectedOption) {
+                <div class="flex items-center gap-2">
+                  <span class="font-medium">{{ selectedOption.name }}</span>
+                  @if (selectedOption.phoneNumber) {
+                    <span class="text-xs text-slate-500">({{ selectedOption.phoneNumber }})</span>
+                  }
+                </div>
+              } @else {
+                <span>Select Customer Measurement</span>
+              }
+            </ng-template>
+            <ng-template #item let-opt>
+              <div class="flex flex-col py-0.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="font-semibold text-slate-800">{{ opt.name }}</span>
+                  @if (opt.phoneNumber) {
+                    <span class="text-xs text-slate-500 font-normal">{{ opt.phoneNumber }}</span>
+                  }
+                </div>
+                @if (opt.bookingNumber) {
+                  <span class="text-xs text-slate-400">Booking #: {{ opt.bookingNumber }}</span>
+                }
               </div>
             </ng-template>
           </p-select>
-          @if (submitted && orderForm.get('measurementId')?.invalid) {
-            <small class="text-red-500 block mt-1">Customer measurement selection is required</small>
+          @if (getError('measurementId')) {
+            <span class="error-msg">{{ getError('measurementId') }}</span>
           }
         </div>
       </div>
 
       <!-- Status, Priority & Assigned Tailor -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="font-semibold block mb-1">
+        <div class="flex flex-col gap-1.5">
+          <label class="form-label">
             Order Status
-            <span class="text-red-500">*</span>
+            <span>*</span>
           </label>
-          <p-select formControlName="status" [options]="orderStatuses" optionLabel="value" optionValue="key" class="w-full"></p-select>
+          <p-select
+            formControlName="status"
+            [options]="orderStatuses"
+            optionLabel="value"
+            optionValue="key"
+            class="w-full"
+            [invalid]="hasError('status')"
+            [class.ng-invalid]="hasError('status')"
+            [class.ng-touched]="hasError('status')"
+          ></p-select>
+          @if (getError('status')) {
+            <span class="error-msg">{{ getError('status') }}</span>
+          }
         </div>
 
-        <div>
-          <label class="font-semibold block mb-1">
+        <div class="flex flex-col gap-1.5">
+          <label class="form-label">
             Priority
-            <span class="text-red-500">*</span>
+            <span>*</span>
           </label>
-          <p-select formControlName="priority" [options]="orderPriorities" optionLabel="value" optionValue="key" class="w-full"></p-select>
+          <p-select
+            formControlName="priority"
+            [options]="orderPriorities"
+            optionLabel="value"
+            optionValue="key"
+            class="w-full"
+            [invalid]="hasError('priority')"
+            [class.ng-invalid]="hasError('priority')"
+            [class.ng-touched]="hasError('priority')"
+          ></p-select>
+          @if (getError('priority')) {
+            <span class="error-msg">{{ getError('priority') }}</span>
+          }
         </div>
 
-        <div>
-          <label class="font-semibold block mb-1">Assigned Tailor</label>
+        <div class="flex flex-col gap-1.5">
+          <label class="form-label">Assigned Tailor</label>
           <input pInputText formControlName="assignedTailor" placeholder="e.g. Master Aslam" />
         </div>
       </div>
@@ -196,19 +245,41 @@
       <!-- Dates Row -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="font-semibold block mb-1">
+          <label class="form-label">
             Booking Date
-            <span class="text-red-500">*</span>
+            <span>*</span>
           </label>
-          <p-datepicker formControlName="orderDate" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"></p-datepicker>
+          <p-datepicker
+            formControlName="orderDate"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+            class="w-full"
+            [invalid]="hasError('orderDate')"
+            [class.ng-invalid]="hasError('orderDate')"
+            [class.ng-touched]="hasError('orderDate')"
+          ></p-datepicker>
+          @if (getError('orderDate')) {
+            <span class="error-msg">{{ getError('orderDate') }}</span>
+          }
         </div>
 
-        <div>
-          <label class="font-semibold block mb-1">
+        <div class="flex flex-col gap-1.5">
+          <label class="form-label">
             Expected Delivery Date
-            <span class="text-red-500">*</span>
+            <span>*</span>
           </label>
-          <p-datepicker formControlName="expectedDeliveryDate" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"></p-datepicker>
+          <p-datepicker
+            formControlName="expectedDeliveryDate"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+            class="w-full"
+            [invalid]="hasError('expectedDeliveryDate')"
+            [class.ng-invalid]="hasError('expectedDeliveryDate')"
+            [class.ng-touched]="hasError('expectedDeliveryDate')"
+          ></p-datepicker>
+          @if (getError('expectedDeliveryDate')) {
+            <span class="error-msg">{{ getError('expectedDeliveryDate') }}</span>
+          }
         </div>
       </div>
 
@@ -220,8 +291,8 @@
         </div>
 
         @if (orderForm.get('fabricProvided')?.value) {
-          <div>
-            <label class="font-semibold block mb-1 text-sm">Fabric Details</label>
+          <div class="flex flex-col gap-1.5">
+            <label class="form-label">Fabric Details</label>
             <textarea pTextarea formControlName="fabricDetails" rows="2" placeholder="e.g. Boski White 4.5 meters, Wash & Wear Navy Blue" class="w-full"></textarea>
           </div>
         }
@@ -231,32 +302,54 @@
       <div class="border border-indigo-100 rounded-lg p-3 bg-indigo-50/50 flex flex-col gap-3">
         <h4 class="font-semibold text-indigo-950 m-0 text-base">Financial Details</h4>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="font-semibold block mb-1 text-sm">
+          <div class="flex flex-col gap-1.5">
+            <label class="form-label">
               Total Cost (Rs.)
-              <span class="text-red-500">*</span>
+              <span>*</span>
             </label>
-            <input pInputText type="number" formControlName="totalAmount" placeholder="0" />
+            <input
+              pInputText
+              type="number"
+              formControlName="totalAmount"
+              placeholder="0"
+              [invalid]="hasError('totalAmount')"
+              [class.ng-invalid]="hasError('totalAmount')"
+              [class.ng-touched]="hasError('totalAmount')"
+            />
+            @if (getError('totalAmount')) {
+              <span class="error-msg">{{ getError('totalAmount') }}</span>
+            }
           </div>
 
-          <div>
-            <label class="font-semibold block mb-1 text-sm">
+          <div class="flex flex-col gap-1.5">
+            <label class="form-label text-sm">
               Advance Paid (Rs.)
-              <span class="text-red-500">*</span>
+              <span>*</span>
             </label>
-            <input pInputText type="number" formControlName="amountPaid" placeholder="0" />
+            <input
+              pInputText
+              type="number"
+              formControlName="amountPaid"
+              placeholder="0"
+              [invalid]="hasError('amountPaid')"
+              [class.ng-invalid]="hasError('amountPaid')"
+              [class.ng-touched]="hasError('amountPaid')"
+            />
+            @if (getError('amountPaid')) {
+              <span class="error-msg">{{ getError('amountPaid') }}</span>
+            }
           </div>
 
-          <div>
-            <label class="font-semibold block mb-1 text-sm">Remaining Balance (Rs.)</label>
+          <div class="flex flex-col gap-1.5">
+            <label class="form-label text-sm">Remaining Balance (Rs.)</label>
             <input pInputText formControlName="balance" class="font-bold text-indigo-900 bg-white" />
           </div>
         </div>
       </div>
 
       <!-- Special Instructions -->
-      <div>
-        <label class="font-semibold block mb-1">Special Instructions / Notes</label>
+      <div class="flex flex-col gap-1.5">
+        <label class="form-label">Special Instructions / Notes</label>
         <textarea pTextarea formControlName="specialInstructions" rows="3" placeholder="Enter stitching instructions, collar stiffness, pocket design notes..." class="w-full"></textarea>
       </div>
     </form>
