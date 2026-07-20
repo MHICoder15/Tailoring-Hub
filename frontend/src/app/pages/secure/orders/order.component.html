@@ -1,0 +1,271 @@
+<p-toast></p-toast>
+<p-confirmdialog></p-confirmdialog>
+
+<div class="card">
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+    <div>
+      <h3 class="text-2xl font-bold text-slate-800 m-0">Order Management</h3>
+      <p class="text-slate-500 text-sm m-0">Track tailoring jobs, tailor assignments, production status, and balances</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button pButton label="New Order" icon="pi pi-plus" class="p-button-primary" (click)="openNew()"></button>
+      <!-- <button pButton label="Refresh" icon="pi pi-refresh" class="p-button-outlined p-button-secondary" (click)="loadOrders()"></button> -->
+    </div>
+  </div>
+
+  <p-table
+    #dt
+    [value]="ordersList()"
+    [rows]="10"
+    [paginator]="true"
+    [loading]="loading()"
+    [globalFilterFields]="['orderNumber', 'measurementId.name', 'measurementId.bookingNumber', 'measurementId.phoneNumber', 'assignedTailor', 'status', 'priority']"
+    [tableStyle]="{ 'min-width': '65rem' }"
+    [rowHover]="true"
+    dataKey="_id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
+    [showCurrentPageReport]="true"
+  >
+    <ng-template #caption>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-lg">Orders List</span>
+        </div>
+
+        <p-iconfield iconPosition="left">
+          <p-inputicon class="pi pi-search"></p-inputicon>
+          <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Search order #, customer, tailor..." />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="orderNumber">
+          Order #
+          <p-sortIcon field="orderNumber"></p-sortIcon>
+        </th>
+        <th pSortableColumn="measurementId.name">
+          Customer Name
+          <p-sortIcon field="measurementId.name"></p-sortIcon>
+        </th>
+        <th>Booking # / Phone</th>
+        <th pSortableColumn="status">
+          Status
+          <p-sortIcon field="status"></p-sortIcon>
+        </th>
+        <th pSortableColumn="priority">
+          Priority
+          <p-sortIcon field="priority"></p-sortIcon>
+        </th>
+        <th pSortableColumn="assignedTailor">
+          Tailor
+          <p-sortIcon field="assignedTailor"></p-sortIcon>
+        </th>
+        <th pSortableColumn="expectedDeliveryDate">
+          Delivery Date
+          <p-sortIcon field="expectedDeliveryDate"></p-sortIcon>
+        </th>
+        <th>Total / Balance</th>
+        <th style="min-width: 8rem">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-order>
+      <tr>
+        <!-- <td class="font-bold text-primary">{{ order.orderNumber }}</td> -->
+        <td><p-tag [value]="order.orderNumber" [rounded]="true"></p-tag></td>
+        <td>
+          <span class="font-semibold">{{ order.measurementId?.name || '-' }}</span>
+        </td>
+        <td>
+          <div class="text-sm">
+            <span class="text-slate-600 block">Booking: {{ order.measurementId?.bookingNumber || '-' }}</span>
+            <span class="text-slate-500 block text-xs">{{ order.measurementId?.phoneNumber || '-' }}</span>
+          </div>
+        </td>
+        <td>
+          <p-tag [value]="getStatusLabel(order.status)" [severity]="getStatusSeverity(order.status)"></p-tag>
+        </td>
+        <td>
+          <p-tag [value]="getPriorityLabel(order.priority)" [severity]="getPrioritySeverity(order.priority)"></p-tag>
+        </td>
+        <td>
+          <span [class.text-slate-400]="!order.assignedTailor" class="text-sm font-medium">
+            {{ order.assignedTailor || 'Unassigned' }}
+          </span>
+        </td>
+        <td>
+          <span class="text-sm">{{ order.expectedDeliveryDate | date: 'dd/MM/yyyy' }}</span>
+        </td>
+        <td>
+          <div class="text-sm">
+            <span class="font-semibold text-slate-800 block">Rs. {{ order.totalAmount | number: '1.0-0' }}</span>
+            <span [class.text-red-600]="order.balance > 0" [class.text-emerald-600]="order.balance <= 0" class="text-xs font-semibold block">
+              {{ order.balance > 0 ? 'Bal: Rs. ' + (order.balance | number: '1.0-0') : 'Paid in Full' }}
+            </span>
+          </div>
+        </td>
+        <td>
+          <div class="flex items-center gap-1">
+            <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-info" (click)="editOrder(order)" pTooltip="Edit Order"></button>
+            <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger" (click)="deleteOrder(order)" pTooltip="Delete Order"></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="9">
+          <div class="flex flex-col items-center justify-center py-8">
+            <i class="pi pi-inbox text-color-secondary mb-2" style="font-size: 2rem"></i>
+            <p class="text-lg font-semibold m-0 mb-2">No orders found</p>
+            <p class="text-color-secondary m-0">Click "New Order" to record a new tailoring order.</p>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Order Modal Dialog -->
+<p-dialog [(visible)]="orderDialog" [style]="{ width: '700px' }" [header]="editingId ? 'Edit Order (' + orderForm.get('orderNumber')?.value + ')' : 'Create New Order'" [modal]="true" class="p-fluid">
+  <ng-template #content>
+    <form [formGroup]="orderForm" class="flex flex-col gap-4 py-2">
+      <!-- Order Number & Customer Measurement Selection -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="font-semibold block mb-1">Order #</label>
+          <input pInputText formControlName="orderNumber" class="w-full" />
+        </div>
+
+        <div>
+          <label class="font-semibold block mb-1">
+            Customer Measurement
+            <span class="text-red-500">*</span>
+          </label>
+          <p-select
+            formControlName="measurementId"
+            [options]="measurementsList()"
+            optionLabel="name"
+            optionValue="_id"
+            placeholder="Select Customer Measurement"
+            [filter]="true"
+            filterBy="name,bookingNumber,phoneNumber"
+            (onChange)="onMeasurementSelected($event)"
+            class="w-full"
+          >
+            <ng-template #option let-item>
+              <div>
+                <span class="font-semibold">{{ item.name }}</span>
+                <span class="text-xs text-slate-500 block">Booking: {{ item.bookingNumber }} | Phone: {{ item.phoneNumber }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+          @if (submitted && orderForm.get('measurementId')?.invalid) {
+            <small class="text-red-500 block mt-1">Customer measurement selection is required</small>
+          }
+        </div>
+      </div>
+
+      <!-- Status, Priority & Assigned Tailor -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="font-semibold block mb-1">
+            Order Status
+            <span class="text-red-500">*</span>
+          </label>
+          <p-select formControlName="status" [options]="orderStatuses" optionLabel="value" optionValue="key" class="w-full"></p-select>
+        </div>
+
+        <div>
+          <label class="font-semibold block mb-1">
+            Priority
+            <span class="text-red-500">*</span>
+          </label>
+          <p-select formControlName="priority" [options]="orderPriorities" optionLabel="value" optionValue="key" class="w-full"></p-select>
+        </div>
+
+        <div>
+          <label class="font-semibold block mb-1">Assigned Tailor</label>
+          <input pInputText formControlName="assignedTailor" placeholder="e.g. Master Aslam" />
+        </div>
+      </div>
+
+      <!-- Dates Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="font-semibold block mb-1">
+            Booking Date
+            <span class="text-red-500">*</span>
+          </label>
+          <p-datepicker formControlName="orderDate" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"></p-datepicker>
+        </div>
+
+        <div>
+          <label class="font-semibold block mb-1">
+            Expected Delivery Date
+            <span class="text-red-500">*</span>
+          </label>
+          <p-datepicker formControlName="expectedDeliveryDate" dateFormat="dd/mm/yy" [showIcon]="true" class="w-full"></p-datepicker>
+        </div>
+      </div>
+
+      <!-- Fabric Provided & Details -->
+      <div class="border border-slate-200 rounded-lg p-3 bg-slate-50 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <label class="font-semibold text-slate-800">Customer Provided Fabric?</label>
+          <p-toggleswitch formControlName="fabricProvided"></p-toggleswitch>
+        </div>
+
+        @if (orderForm.get('fabricProvided')?.value) {
+          <div>
+            <label class="font-semibold block mb-1 text-sm">Fabric Details</label>
+            <textarea pTextarea formControlName="fabricDetails" rows="2" placeholder="e.g. Boski White 4.5 meters, Wash & Wear Navy Blue" class="w-full"></textarea>
+          </div>
+        }
+      </div>
+
+      <!-- Financials Section -->
+      <div class="border border-indigo-100 rounded-lg p-3 bg-indigo-50/50 flex flex-col gap-3">
+        <h4 class="font-semibold text-indigo-950 m-0 text-base">Financial Details</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="font-semibold block mb-1 text-sm">
+              Total Cost (Rs.)
+              <span class="text-red-500">*</span>
+            </label>
+            <input pInputText type="number" formControlName="totalAmount" placeholder="0" />
+          </div>
+
+          <div>
+            <label class="font-semibold block mb-1 text-sm">
+              Advance Paid (Rs.)
+              <span class="text-red-500">*</span>
+            </label>
+            <input pInputText type="number" formControlName="amountPaid" placeholder="0" />
+          </div>
+
+          <div>
+            <label class="font-semibold block mb-1 text-sm">Remaining Balance (Rs.)</label>
+            <input pInputText formControlName="balance" class="font-bold text-indigo-900 bg-white" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Special Instructions -->
+      <div>
+        <label class="font-semibold block mb-1">Special Instructions / Notes</label>
+        <textarea pTextarea formControlName="specialInstructions" rows="3" placeholder="Enter stitching instructions, collar stiffness, pocket design notes..." class="w-full"></textarea>
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template #footer>
+    <div class="flex justify-end gap-2 pt-2">
+      <button pButton label="Cancel" icon="pi pi-times" text (click)="hideDialog()"></button>
+      <button pButton label="Save Order" icon="pi pi-check" class="p-button-primary" (click)="saveOrder()"></button>
+    </div>
+  </ng-template>
+</p-dialog>

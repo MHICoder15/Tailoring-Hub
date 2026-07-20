@@ -16,6 +16,7 @@ export default [
     children: [
       { path: 'dashboard', loadComponent: () => Dashboard },
       { path: 'measurement', loadComponent: () => MeasurementComponent },
+      { path: 'orders', loadComponent: () => import('./orders/order.component').then((m) => m.OrderComponent) },
       { path: 'crud', loadComponent: () => Crud },
       { path: 'empty', loadComponent: () => Empty },
       { path: 'ui-demo', loadChildren: () => import('./uikit/uikit.routes') },

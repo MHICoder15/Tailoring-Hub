@@ -3,6 +3,7 @@ import globleErrorHandler from "./middlewares/globle-error-handler.js";
 import userRouter from "./routes/user.route.ts";
 import bookRouter from "./routes/book.route.ts";
 import measurementRouter from "./routes/measurement.route.ts";
+import orderRouter from "./routes/order.route.ts";
 import cors from "cors";
 import cookieParser from "cookie-parser"
 const app = express();
@@ -40,6 +41,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRouter);
 app.use("/api/books", bookRouter);
 app.use("/api/measurements", measurementRouter);
+app.use("/api/orders", orderRouter);
 
 // Global error handler
 app.use(globleErrorHandler);
