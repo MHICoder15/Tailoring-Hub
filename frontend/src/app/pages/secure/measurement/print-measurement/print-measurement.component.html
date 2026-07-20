@@ -307,7 +307,7 @@
     <!-- Notes & Remarks Row if any -->
     @if (p.description || p.remarks) {
       <div class="print-notes-box py-1 px-1.5 mt-2 mb-1.5">
-        <span class="notes-title">Special Notes:</span>
+        <span class="notes-title mr-1">Special Notes:</span>
         <span class="notes-content">{{ p.description }} {{ p.remarks ? '(' + p.remarks + ')' : '' }}</span>
       </div>
     }
