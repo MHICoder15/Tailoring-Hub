@@ -79,18 +79,18 @@
           <span class="font-semibold text-slate-800">{{ measurement.name }}</span>
         </td>
         <td>
-          <span class="text-slate-600 text-sm">{{ measurement.phoneNumber || '-' }}</span>
+          <span class="text-slate-600 text-md">{{ measurement.phoneNumber || '-' }}</span>
         </td>
         <td>
           <div class="text-sm">
-            <span class="text-slate-600 block text-xs">Booked: {{ measurement.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
+            <span class="text-slate-600 block">Booked: {{ measurement.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
             <span class="font-semibold text-slate-800 block">Delivery: {{ measurement.deliveryDate | date: 'dd/MM/yyyy' }}</span>
           </div>
         </td>
         <td>
           <div class="text-sm">
             <span class="font-semibold text-slate-800 block">Rs. {{ measurement.totalCost | number: '1.0-0' }}</span>
-            <span [class.text-red-600]="measurement.remainingBalance > 0" [class.text-emerald-600]="measurement.remainingBalance <= 0" class="text-xs font-semibold block">
+            <span [class.text-red-600]="measurement.remainingBalance > 0" [class.text-emerald-600]="measurement.remainingBalance <= 0" class="font-semibold block">
               {{ measurement.remainingBalance > 0 ? 'Bal: Rs. ' + (measurement.remainingBalance | number: '1.0-0') : 'Paid in Full' }}
             </span>
           </div>

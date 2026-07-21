@@ -81,7 +81,7 @@
         <td>
           <div class="text-sm">
             <span class="text-slate-600 block">Booking: {{ order.measurementId?.bookingNumber || '-' }}</span>
-            <span class="text-slate-500 block text-xs">{{ order.measurementId?.phoneNumber || '-' }}</span>
+            <span class="text-slate-500 block">{{ order.measurementId?.phoneNumber || '-' }}</span>
           </div>
         </td>
         <td>
@@ -91,20 +91,20 @@
           <p-tag [value]="getPriorityLabel(order.priority)" [severity]="getPrioritySeverity(order.priority)"></p-tag>
         </td>
         <td>
-          <span [class.text-slate-400]="!order.assignedTailor" class="text-sm font-medium">
+          <span [class.text-slate-400]="!order.assignedTailor" class="text-md font-medium">
             {{ order.assignedTailor || 'Unassigned' }}
           </span>
         </td>
         <td>
           <div class="text-sm">
-            <span class="text-slate-600 block text-xs">Booked: {{ order.orderDate || order.measurementId?.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
+            <span class="text-slate-600 block">Booked: {{ order.orderDate || order.measurementId?.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
             <span class="font-semibold text-slate-800 block">Delivery: {{ order.expectedDeliveryDate || order.measurementId?.deliveryDate | date: 'dd/MM/yyyy' }}</span>
           </div>
         </td>
         <td>
           <div class="text-sm">
             <span class="font-semibold text-slate-800 block">Rs. {{ order.totalAmount | number: '1.0-0' }}</span>
-            <span [class.text-red-600]="order.balance > 0" [class.text-emerald-600]="order.balance <= 0" class="text-xs font-semibold block">
+            <span [class.text-red-600]="order.balance > 0" [class.text-emerald-600]="order.balance <= 0" class="font-semibold block">
               {{ order.balance > 0 ? 'Bal: Rs. ' + (order.balance | number: '1.0-0') : 'Paid in Full' }}
             </span>
           </div>
@@ -244,7 +244,7 @@
 
       <!-- Dates Row -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+        <div class="flex flex-col gap-1.5">
           <label class="form-label">
             Booking Date
             <span>*</span>
