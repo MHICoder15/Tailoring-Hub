@@ -34,3 +34,14 @@ export const ORDER_PRIORITIES: { key: OrderPriority; value: string; severity: 'c
   { key: 'HIGH', value: 'High', severity: 'warn' },
   { key: 'URGENT', value: 'Urgent', severity: 'danger' },
 ];
+
+export function getStatusStyle(status: string): { [key: string]: string } {
+  const styles: Record<string, { [key: string]: string }> = {
+    PENDING: { backgroundColor: '#FEF3C7', color: '#92400E' },       // Amber / Orange
+    IN_PROGRESS: { backgroundColor: '#E0F2FE', color: '#075985' },   // Sky Blue
+    COMPLETED: { backgroundColor: '#D1FAE5', color: '#065F46' },     // Emerald Green
+    DELIVERED: { backgroundColor: '#F1F5F9', color: '#334155' },     // Slate Grey
+    CANCELLED: { backgroundColor: '#FEE2E2', color: '#991B1B' },     // Red
+  };
+  return styles[status] || { backgroundColor: '#F1F5F9', color: '#334155' };
+}

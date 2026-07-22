@@ -19,7 +19,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { OrderService } from '@/app/core/services/order.service';
 import { MeasurementService } from '@/app/core/services/measurement.service';
-import { Order, ORDER_STATUSES, ORDER_PRIORITIES, OrderStatus, OrderPriority } from '@/app/core/models/order.model';
+import { Order, ORDER_STATUSES, ORDER_PRIORITIES, OrderStatus, OrderPriority, getStatusStyle } from '@/app/core/models/order.model';
 
 @Component({
   selector: 'app-order',
@@ -298,6 +298,8 @@ export class OrderComponent implements OnInit {
     const found = this.orderStatuses.find((s) => s.key === status);
     return found ? found.severity : 'info';
   }
+
+  getStatusStyle = getStatusStyle;
 
   getStatusLabel(status: string): string {
     const found = this.orderStatuses.find((s) => s.key === status);

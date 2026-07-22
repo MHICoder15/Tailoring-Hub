@@ -71,6 +71,7 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   exportColumns!: ExportColumn[];
   cols!: Column[];
   measurementsList = signal<any[]>([]);
+  loading = signal<boolean>(false);
   selectedMeasurementForPrint = signal<any | null>(null);
   form!: FormGroup;
   private valueChangesSub?: Subscription;
@@ -194,14 +195,21 @@ export class MeasurementComponent implements OnInit, OnDestroy {
   }
 
   loadMeasurementData() {
-    this.measurementsList.set([]);
-    this.measurementService.getMeasurements().subscribe((resp) => {
-      if (resp.success === true) {
-        this.measurementsList.set(resp.data);
-        if (this.form && !this.isEditing) {
-          this.form.get('bookingNumber')?.setValue(this.getNextBookingNumber(), { emitEvent: false });
+    this.loading.set(true);
+    this.measurementService.getMeasurements().subscribe({
+      next: (resp) => {
+        if (resp && resp.success === true) {
+          this.measurementsList.set(resp.data);
+          if (this.form && !this.isEditing) {
+            this.form.get('bookingNumber')?.setValue(this.getNextBookingNumber(), { emitEvent: false });
+          }
         }
-      }
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Failed to load measurements' });
+        this.loading.set(false);
+      },
     });
 
     this.cols = [

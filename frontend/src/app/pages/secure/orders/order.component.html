@@ -85,7 +85,7 @@
           </div>
         </td>
         <td>
-          <p-tag [value]="getStatusLabel(order.status)" [severity]="getStatusSeverity(order.status)"></p-tag>
+          <p-tag [value]="getStatusLabel(order.status)" [ngStyle]="getStatusStyle(order.status)" styleClass="font-bold text-xs px-3 py-1 rounded-md border-0"></p-tag>
         </td>
         <td>
           <p-tag [value]="getPriorityLabel(order.priority)" [severity]="getPrioritySeverity(order.priority)"></p-tag>

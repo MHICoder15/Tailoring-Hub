@@ -4,6 +4,7 @@ import userRouter from "./routes/user.route.ts";
 import bookRouter from "./routes/book.route.ts";
 import measurementRouter from "./routes/measurement.route.ts";
 import orderRouter from "./routes/order.route.ts";
+import statsRouter from "./routes/stats.route.ts";
 import cors from "cors";
 import cookieParser from "cookie-parser"
 const app = express();
@@ -42,6 +43,7 @@ app.use("/api/users", userRouter);
 app.use("/api/books", bookRouter);
 app.use("/api/measurements", measurementRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/stats", statsRouter);
 
 // Global error handler
 app.use(globleErrorHandler);
