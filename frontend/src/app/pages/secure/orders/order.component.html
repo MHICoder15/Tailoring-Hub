@@ -4,12 +4,11 @@
 <div class="card">
   <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
     <div>
-      <h3 class="text-2xl font-bold text-slate-800 m-0">Order Management</h3>
-      <p class="text-slate-500 text-sm m-0">Track tailoring jobs, tailor assignments, production status, and balances</p>
+      <h3 class="text-2xl font-bold text-slate-800 dark:text-slate-100 m-0">Order Management</h3>
+      <p class="text-slate-500 dark:text-slate-400 text-sm m-0">Track tailoring jobs, tailor assignments, production status, suit quantities, and balances</p>
     </div>
     <div class="flex items-center gap-2">
       <button pButton label="New Order" icon="pi pi-plus" class="p-button-primary" (click)="openNew()"></button>
-      <!-- <button pButton label="Refresh" icon="pi pi-refresh" class="p-button-outlined p-button-secondary" (click)="loadOrders()"></button> -->
     </div>
   </div>
 
@@ -20,7 +19,7 @@
     [paginator]="true"
     [loading]="loading()"
     [globalFilterFields]="['orderNumber', 'measurementId.name', 'measurementId.bookingNumber', 'measurementId.phoneNumber', 'assignedTailor', 'status', 'priority']"
-    [tableStyle]="{ 'min-width': '65rem' }"
+    [tableStyle]="{ 'min-width': '70rem' }"
     [rowHover]="true"
     dataKey="_id"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
@@ -29,7 +28,7 @@
     <ng-template #caption>
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <span class="font-semibold text-lg">Orders List</span>
+          <span class="font-semibold text-lg text-slate-800 dark:text-slate-100">Orders List</span>
         </div>
 
         <p-iconfield iconPosition="left">
@@ -50,6 +49,10 @@
           <p-sortIcon field="measurementId.name"></p-sortIcon>
         </th>
         <th>Booking # / Phone</th>
+        <th pSortableColumn="numberOfSuits">
+          Suits
+          <p-sortIcon field="numberOfSuits"></p-sortIcon>
+        </th>
         <th pSortableColumn="status">
           Status
           <p-sortIcon field="status"></p-sortIcon>
@@ -67,52 +70,55 @@
           <p-sortIcon field="expectedDeliveryDate"></p-sortIcon>
         </th>
         <th>Total / Balance</th>
-        <th style="min-width: 8rem">Actions</th>
+        <th style="min-width: 9rem">Actions</th>
       </tr>
     </ng-template>
 
     <ng-template #body let-order>
       <tr>
-        <!-- <td class="font-bold text-primary">{{ order.orderNumber }}</td> -->
         <td><p-tag [value]="order.orderNumber" [rounded]="true"></p-tag></td>
         <td>
-          <span class="font-semibold">{{ order.measurementId?.name || '-' }}</span>
+          <span class="font-semibold text-slate-800 dark:text-slate-100">{{ order.measurementId?.name || '-' }}</span>
         </td>
         <td>
           <div class="text-sm">
-            <span class="text-slate-600 block">Booking: {{ order.measurementId?.bookingNumber || '-' }}</span>
-            <span class="text-slate-500 block">{{ order.measurementId?.phoneNumber || '-' }}</span>
+            <span class="text-slate-600 dark:text-slate-400 block">Booking: {{ order.measurementId?.bookingNumber || '-' }}</span>
+            <span class="text-slate-500 dark:text-slate-400 block">{{ order.measurementId?.phoneNumber || '-' }}</span>
           </div>
         </td>
         <td>
-          <p-tag [value]="getStatusLabel(order.status)" [ngStyle]="getStatusStyle(order.status)" styleClass="font-bold text-xs px-3 py-1 rounded-md border-0"></p-tag>
+          <p-tag [value]="(order.numberOfSuits || 1) + ' Suit(s)'" [ngStyle]="{ 'background-color': '#EEF2FF', color: '#4338CA' }"></p-tag>
+        </td>
+        <td>
+          <p-tag [value]="getStatusLabel(order.status)" [ngStyle]="getStatusStyle(order.status)"></p-tag>
         </td>
         <td>
           <p-tag [value]="getPriorityLabel(order.priority)" [severity]="getPrioritySeverity(order.priority)"></p-tag>
         </td>
         <td>
-          <span [class.text-slate-400]="!order.assignedTailor" class="text-md font-medium">
+          <span [class.text-slate-400]="!order.assignedTailor" [class.dark:text-slate-500]="!order.assignedTailor" class="text-md font-medium text-slate-800 dark:text-slate-200">
             {{ order.assignedTailor || 'Unassigned' }}
           </span>
         </td>
         <td>
           <div class="text-sm">
-            <span class="text-slate-600 block">Booked: {{ order.orderDate || order.measurementId?.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
-            <span class="font-semibold text-slate-800 block">Delivery: {{ order.expectedDeliveryDate || order.measurementId?.deliveryDate | date: 'dd/MM/yyyy' }}</span>
+            <span class="text-slate-600 dark:text-slate-400 block">Booked: {{ order.orderDate || order.measurementId?.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
+            <span class="font-semibold text-slate-800 dark:text-slate-200 block">Delivery: {{ order.expectedDeliveryDate || order.measurementId?.deliveryDate | date: 'dd/MM/yyyy' }}</span>
           </div>
         </td>
         <td>
           <div class="text-sm">
-            <span class="font-semibold text-slate-800 block">Rs. {{ order.totalAmount | number: '1.0-0' }}</span>
-            <span [class.text-red-600]="order.balance > 0" [class.text-emerald-600]="order.balance <= 0" class="font-semibold block">
+            <span class="font-semibold text-slate-800 dark:text-slate-100 block">Rs. {{ order.totalAmount | number: '1.0-0' }}</span>
+            <span [class.text-red-600]="order.balance > 0" [class.dark:text-red-400]="order.balance > 0" [class.text-emerald-600]="order.balance <= 0" [class.dark:text-emerald-400]="order.balance <= 0" class="font-semibold block">
               {{ order.balance > 0 ? 'Bal: Rs. ' + (order.balance | number: '1.0-0') : 'Paid in Full' }}
             </span>
           </div>
         </td>
         <td>
           <div class="flex items-center gap-1">
+            <button pButton icon="pi pi-print" class="p-button-text p-button-rounded p-button-success" (click)="printInvoice(order)" pTooltip="Print Invoice"></button>
             <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-info" (click)="editOrder(order)" pTooltip="Edit Order"></button>
-            <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger" (click)="deleteOrder(order)" pTooltip="Delete Order"></button>
+            <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger" (click)="confirmDelete(order)" pTooltip="Delete Order"></button>
           </div>
         </td>
       </tr>
@@ -120,7 +126,7 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="9">
+        <td colspan="10">
           <div class="flex flex-col items-center justify-center py-8">
             <i class="pi pi-inbox text-color-secondary mb-2" style="font-size: 2rem"></i>
             <p class="text-lg font-semibold m-0 mb-2">No orders found</p>
@@ -139,8 +145,8 @@
       <!-- Order Number & Customer Measurement Selection -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col gap-1.5">
-          <label class="form-label">Order #</label>
-          <input pInputText formControlName="orderNumber" class="w-full" />
+          <label class="form-label">Order Number</label>
+          <input pInputText formControlName="orderNumber" class="font-bold text-primary bg-slate-100" />
         </div>
 
         <div class="flex flex-col gap-1.5">
@@ -194,8 +200,8 @@
         </div>
       </div>
 
-      <!-- Status, Priority & Assigned Tailor -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Status, Priority, Tailor & Number of Suits Row -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="flex flex-col gap-1.5">
           <label class="form-label">
             Order Status
@@ -233,6 +239,23 @@
           ></p-select>
           @if (getError('priority')) {
             <span class="error-msg">{{ getError('priority') }}</span>
+          }
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="form-label">Number of Suits</label>
+          <input
+            pInputText
+            type="number"
+            formControlName="numberOfSuits"
+            placeholder="Enter number of suits"
+            min="1"
+            [invalid]="hasError('numberOfSuits')"
+            [class.ng-invalid]="hasError('numberOfSuits')"
+            [class.ng-touched]="hasError('numberOfSuits')"
+          />
+          @if (getError('numberOfSuits')) {
+            <span class="error-msg">{{ getError('numberOfSuits') }}</span>
           }
         </div>
 
@@ -362,3 +385,88 @@
     </div>
   </ng-template>
 </p-dialog>
+
+<!-- Standalone Print Container for Direct Printing (Identical to Measurement Print) -->
+<div class="print-invoice-area">
+  @if (selectedOrderForInvoice(); as invOrder) {
+    <div class="p-6 bg-white text-slate-900 flex flex-col gap-6">
+      <!-- Shop Header -->
+      <div class="flex items-start justify-between border-b border-slate-300 pb-4">
+        <div>
+          <h2 class="text-xl! font-bold text-emerald-700 m-0 whitespace-nowrap">TAILORING HUB</h2>
+          <p class="text-xs text-slate-500 m-0 mt-1">Bespoke Custom Tailoring & Stitching Services</p>
+        </div>
+        <div class="text-right shrink-0">
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full uppercase whitespace-nowrap inline-block">Official Receipt</span>
+          <p class="text-xs text-slate-500 m-0 mt-1!">Date: {{ invOrder.orderDate | date: 'dd/MM/yyyy' }}</p>
+        </div>
+      </div>
+
+      <!-- Order & Customer Meta Grid -->
+      <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200 text-sm">
+        <div>
+          <span class="text-xs font-bold text-slate-400 block uppercase">Customer Details</span>
+          <span class="font-bold text-slate-900 block text-base">{{ invOrder.measurementId?.name || '-' }}</span>
+          <span class="text-slate-600 block">Booking #: {{ invOrder.measurementId?.bookingNumber || '-' }}</span>
+          <span class="text-slate-600 block">Phone: {{ invOrder.measurementId?.phoneNumber || '-' }}</span>
+        </div>
+        <div class="text-right">
+          <span class="text-xs font-bold text-slate-400 block uppercase">Order Information</span>
+          <span class="font-bold text-emerald-700 block text-base">{{ invOrder.orderNumber }}</span>
+          <span class="text-slate-600 block">Delivery: {{ invOrder.expectedDeliveryDate | date: 'dd/MM/yyyy' }}</span>
+          <span class="text-slate-600 block">Tailor: {{ invOrder.assignedTailor || 'Unassigned' }}</span>
+        </div>
+      </div>
+
+      <!-- Order Items Table -->
+      <table class="w-full text-left text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-slate-300 bg-slate-100">
+            <th class="py-2.5 px-3 font-bold">Item Description</th>
+            <th class="py-2.5 px-3 font-bold text-center">Suits</th>
+            <th class="py-2.5 px-3 font-bold text-center">Fabric Status</th>
+            <th class="py-2.5 px-3 font-bold text-right">Total Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-200">
+            <td class="py-3 px-3 font-medium">
+              Custom Tailored Suit(s)
+              @if (invOrder.specialInstructions) {
+                <span class="block text-xs text-slate-500 mt-0.5">Note: {{ invOrder.specialInstructions }}</span>
+              }
+            </td>
+            <td class="py-3 px-3 font-bold text-center">{{ invOrder.numberOfSuits || 1 }}</td>
+            <td class="py-3 px-3 text-center">
+              <span [class.text-emerald-700]="invOrder.fabricProvided" [class.text-amber-700]="!invOrder.fabricProvided" class="font-semibold text-xs">
+                {{ invOrder.fabricProvided ? 'Provided' : 'Pending' }}
+              </span>
+            </td>
+            <td class="py-3 px-3 font-bold text-right">Rs. {{ invOrder.totalAmount | number: '1.0-0' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Financial Summary Breakdown -->
+      <div class="flex justify-end pt-2">
+        <div class="w-80 sm:w-96 flex flex-col gap-2 text-sm bg-slate-50 p-4 rounded-lg border border-slate-200">
+          <div class="flex justify-between">
+            <span class="text-slate-600">Total Amount:</span>
+            <span class="font-bold">Rs. {{ invOrder.totalAmount | number: '1.0-0' }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">Advance Paid:</span>
+            <span class="font-bold text-emerald-700">Rs. {{ invOrder.amountPaid | number: '1.0-0' }}</span>
+          </div>
+          <div class="flex justify-between border-t border-slate-300 pt-2 text-base">
+            <span class="font-bold text-slate-800">Remaining Balance:</span>
+            <span class="font-bold text-red-600">Rs. {{ invOrder.balance | number: '1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terms Footer -->
+      <div class="text-center text-xs text-slate-400 border-t border-slate-200 pt-4">Thank you for choosing Tailoring Hub. Please bring this receipt when picking up your order.</div>
+    </div>
+  }
+</div>

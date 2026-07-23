@@ -13,6 +13,7 @@ export interface Order {
   fabricProvided: boolean;
   fabricDetails?: string;
   specialInstructions?: string;
+  numberOfSuits?: number;
   totalAmount: number;
   amountPaid: number;
   balance: number;

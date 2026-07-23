@@ -50,6 +50,7 @@ export class OrderComponent implements OnInit {
   ordersList = signal<Order[]>([]);
   measurementsList = signal<any[]>([]);
   loading = signal<boolean>(false);
+  selectedOrderForInvoice = signal<Order | null>(null);
 
   orderDialog: boolean = false;
   deleteOrderDialog: boolean = false;
@@ -69,7 +70,7 @@ export class OrderComponent implements OnInit {
     private measurementService: MeasurementService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -90,6 +91,7 @@ export class OrderComponent implements OnInit {
       fabricProvided: [false],
       fabricDetails: [''],
       specialInstructions: [''],
+      numberOfSuits: [1, [Validators.required, Validators.min(1)]],
       totalAmount: [0, [Validators.required, Validators.min(0)]],
       amountPaid: [0, [Validators.required, Validators.min(0)]],
       balance: [{ value: 0, disabled: true }],
@@ -143,8 +145,8 @@ export class OrderComponent implements OnInit {
       if (firstItem && firstItem.orderNumber) {
         const match = firstItem.orderNumber.match(/\d+/);
         if (match) {
-          const num = parseInt(match[0], 10) + 1;
-          return `ORD-${num.toString().padStart(2, '0')}`;
+          const nextNum = parseInt(match[0], 10) + 1;
+          return `ORD-${nextNum.toString().padStart(2, '0')}`;
         }
       }
     }
@@ -167,6 +169,7 @@ export class OrderComponent implements OnInit {
       orderDate: new Date(),
       expectedDeliveryDate: defaultDelivery,
       fabricProvided: false,
+      numberOfSuits: 1,
       totalAmount: 0,
       amountPaid: 0,
       balance: 0,
@@ -180,7 +183,6 @@ export class OrderComponent implements OnInit {
     if (selectedId) {
       const measurement = this.measurementsList().find((m) => m._id === selectedId);
       if (measurement) {
-        // Pre-fill booking date, delivery date & amounts from measurement record
         const patchData: any = {};
         if (measurement.dateOfBooking) {
           patchData.orderDate = new Date(measurement.dateOfBooking);
@@ -215,6 +217,7 @@ export class OrderComponent implements OnInit {
       fabricProvided: Boolean(order.fabricProvided),
       fabricDetails: order.fabricDetails || '',
       specialInstructions: order.specialInstructions || '',
+      numberOfSuits: order.numberOfSuits || 1,
       totalAmount: order.totalAmount || 0,
       amountPaid: order.amountPaid || 0,
       balance: order.balance || 0,
@@ -226,6 +229,16 @@ export class OrderComponent implements OnInit {
   hideDialog(): void {
     this.orderDialog = false;
     this.submitted = false;
+  }
+
+  printInvoice(order: Order): void {
+    this.selectedOrderForInvoice.set(order);
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      window.print();
+      this.selectedOrderForInvoice.set(null);
+      this.cdr.detectChanges();
+    }, 150);
   }
 
   saveOrder(): void {
@@ -248,11 +261,10 @@ export class OrderComponent implements OnInit {
 
     if (this.editingId) {
       this.orderService.updateOrder(formValue, this.editingId).subscribe({
-        next: (resp) => {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order updated successfully' });
-          this.orderDialog = false;
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Order Updated Successfully' });
           this.loadOrders();
-          this.loadMeasurements();
+          this.orderDialog = false;
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Failed to update order' });
@@ -260,11 +272,10 @@ export class OrderComponent implements OnInit {
       });
     } else {
       this.orderService.createOrder(formValue).subscribe({
-        next: (resp) => {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order created successfully' });
-          this.orderDialog = false;
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Order Created Successfully' });
           this.loadOrders();
-          this.loadMeasurements();
+          this.orderDialog = false;
         },
         error: (err) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Failed to create order' });
@@ -273,7 +284,7 @@ export class OrderComponent implements OnInit {
     }
   }
 
-  deleteOrder(order: Order): void {
+  confirmDelete(order: Order): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to delete order ${order.orderNumber}?`,
       header: 'Confirm Delete',
@@ -320,7 +331,7 @@ export class OrderComponent implements OnInit {
     if (order._id && order.status !== newStatus) {
       this.orderService.updateOrderStatus(newStatus, order._id).subscribe({
         next: () => {
-          this.messageService.add({ severity: 'success', summary: 'Status Updated', detail: `Order ${order.orderNumber} status changed to ${this.getStatusLabel(newStatus)}` });
+          this.messageService.add({ severity: 'success', summary: 'Updated', detail: `Order status changed to ${this.getStatusLabel(newStatus)}` });
           this.loadOrders();
         },
         error: (err) => {
@@ -348,9 +359,11 @@ export class OrderComponent implements OnInit {
         expectedDeliveryDate: 'Expected delivery date',
         totalAmount: 'Total amount',
         amountPaid: 'Amount paid',
+        numberOfSuits: 'Number of suits',
       };
       return `${labels[controlName] || controlName} is required`;
     }
+    if (ctrl.errors?.['min'] && ctrl.errors['min'].min === 1) return 'Value must be a positive integer';
     if (ctrl.errors?.['min']) return 'Value must be 0 or greater';
     return 'Invalid value';
   }

@@ -28,7 +28,7 @@ export class AppMenu {
       {
         label: 'Menu',
         items: [
-          { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
+          { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] },
           { label: 'Measurements', icon: 'pi pi-fw pi-pencil', routerLink: ['/measurement'] },
           { label: 'Orders', icon: 'pi pi-fw pi-shopping-bag', routerLink: ['/orders'] },
         ],

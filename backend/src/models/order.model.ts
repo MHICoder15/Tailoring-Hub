@@ -52,6 +52,11 @@ const orderSchema = new mongoose.Schema<Order>(
       type: String,
       trim: true,
     },
+    numberOfSuits: {
+      type: Number,
+      default: 1,
+      min: [1, "Number of suits must be at least 1"],
+    },
     totalAmount: {
       type: Number,
       required: [true, "Total amount is required"],

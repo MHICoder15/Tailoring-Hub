@@ -17,6 +17,7 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     fabricProvided,
     fabricDetails,
     specialInstructions,
+    numberOfSuits,
     totalAmount,
     amountPaid,
   } = req.body;
@@ -73,6 +74,7 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
       fabricProvided: fabricProvided === undefined ? false : Boolean(fabricProvided),
       fabricDetails,
       specialInstructions,
+      numberOfSuits: numberOfSuits ? Number(numberOfSuits) : 1,
       totalAmount: total,
       amountPaid: paid,
       balance: calculatedBalance,
@@ -135,6 +137,7 @@ const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
     fabricProvided,
     fabricDetails,
     specialInstructions,
+    numberOfSuits,
     totalAmount,
     amountPaid,
   } = req.body;
@@ -173,6 +176,7 @@ const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
         fabricProvided: fabricProvided !== undefined ? Boolean(fabricProvided) : existingOrder.fabricProvided,
         fabricDetails: fabricDetails !== undefined ? fabricDetails : existingOrder.fabricDetails,
         specialInstructions: specialInstructions !== undefined ? specialInstructions : existingOrder.specialInstructions,
+        numberOfSuits: numberOfSuits !== undefined ? Number(numberOfSuits) : existingOrder.numberOfSuits,
         totalAmount: total,
         amountPaid: paid,
         balance: calculatedBalance,

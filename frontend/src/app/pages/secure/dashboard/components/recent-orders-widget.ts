@@ -34,7 +34,7 @@ import { ORDER_STATUSES, getStatusStyle } from '@/app/core/models/order.model';
             @for (order of orders || []; track order._id; let isLast = $last) {
               <tr [class.border-b]="!isLast" [class.border-surface-200]="!isLast" [class.dark:border-surface-700]="!isLast">
                 <td class="py-3.5 px-2">
-                  <p-tag [value]="order.orderNumber" [rounded]="true" severity="success"></p-tag>
+                  <p-tag [value]="order.orderNumber" [rounded]="true"></p-tag>
                 </td>
                 <td class="py-3.5 px-2 font-bold text-surface-900 dark:text-surface-0 text-sm">
                   {{ order.measurementId?.name || '-' }}
@@ -43,11 +43,7 @@ import { ORDER_STATUSES, getStatusStyle } from '@/app/core/models/order.model';
                   {{ order.expectedDeliveryDate | date: 'dd/MM/yyyy' }}
                 </td>
                 <td class="py-3.5 px-2">
-                  <p-tag
-                    [value]="getStatusLabel(order.status)"
-                    [ngStyle]="getStatusStyle(order.status)"
-                    styleClass="font-bold text-xs px-3 py-1 rounded-md border-0"
-                  ></p-tag>
+                  <p-tag [value]="getStatusLabel(order.status)" [ngStyle]="getStatusStyle(order.status)" styleClass="font-bold text-xs px-3 py-1 rounded-md border-0"></p-tag>
                 </td>
                 <td class="py-3.5 px-2">
                   <button
@@ -98,9 +94,7 @@ export class RecentOrdersWidget {
     }
 
     const encodedText = encodeURIComponent(message);
-    const url = cleanPhone
-      ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`
-      : `https://api.whatsapp.com/send?text=${encodedText}`;
+    const url = cleanPhone ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}` : `https://api.whatsapp.com/send?text=${encodedText}`;
 
     window.open(url, '_blank');
   }

@@ -13,8 +13,8 @@
 <div class="card">
   <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
     <div>
-      <h3 class="text-2xl font-bold text-slate-800 m-0">Measurement Management</h3>
-      <p class="text-slate-500 text-sm m-0">Manage customer tailoring measurements, suit parameters, and profiles</p>
+      <h3 class="text-2xl font-bold text-slate-800 dark:text-slate-100 m-0">Measurement Management</h3>
+      <p class="text-slate-500 dark:text-slate-400 text-sm m-0">Manage customer tailoring measurements, suit parameters, and profiles</p>
     </div>
     <div class="flex items-center gap-2">
       <button pButton label="New Measurement" icon="pi pi-plus" class="p-button-primary" (click)="openNewMessageDialog()"></button>
@@ -37,7 +37,7 @@
     <ng-template #caption>
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <span class="font-semibold text-lg">Measurements List</span>
+          <span class="font-semibold text-lg text-slate-800 dark:text-slate-100">Measurements List</span>
         </div>
 
         <p-iconfield iconPosition="left">
@@ -77,21 +77,21 @@
       <tr>
         <td><p-tag [value]="measurement.bookingNumber" [rounded]="true"></p-tag></td>
         <td>
-          <span class="font-semibold text-slate-800">{{ measurement.name }}</span>
+          <span class="font-semibold text-slate-800 dark:text-slate-100">{{ measurement.name }}</span>
         </td>
         <td>
-          <span class="text-slate-600 text-md">{{ measurement.phoneNumber || '-' }}</span>
+          <span class="text-slate-600 dark:text-slate-300 text-md">{{ measurement.phoneNumber || '-' }}</span>
         </td>
         <td>
           <div class="text-sm">
-            <span class="text-slate-600 block">Booked: {{ measurement.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
-            <span class="font-semibold text-slate-800 block">Delivery: {{ measurement.deliveryDate | date: 'dd/MM/yyyy' }}</span>
+            <span class="text-slate-600 dark:text-slate-400 block">Booked: {{ measurement.dateOfBooking | date: 'dd/MM/yyyy' }}</span>
+            <span class="font-semibold text-slate-800 dark:text-slate-200 block">Delivery: {{ measurement.deliveryDate | date: 'dd/MM/yyyy' }}</span>
           </div>
         </td>
         <td>
           <div class="text-sm">
-            <span class="font-semibold text-slate-800 block">Rs. {{ measurement.totalCost | number: '1.0-0' }}</span>
-            <span [class.text-red-600]="measurement.remainingBalance > 0" [class.text-emerald-600]="measurement.remainingBalance <= 0" class="font-semibold block">
+            <span class="font-semibold text-slate-800 dark:text-slate-100 block">Rs. {{ measurement.totalCost | number: '1.0-0' }}</span>
+            <span [class.text-red-600]="measurement.remainingBalance > 0" [class.dark:text-red-400]="measurement.remainingBalance > 0" [class.text-emerald-600]="measurement.remainingBalance <= 0" [class.dark:text-emerald-400]="measurement.remainingBalance <= 0" class="font-semibold block">
               {{ measurement.remainingBalance > 0 ? 'Bal: Rs. ' + (measurement.remainingBalance | number: '1.0-0') : 'Paid in Full' }}
             </span>
           </div>

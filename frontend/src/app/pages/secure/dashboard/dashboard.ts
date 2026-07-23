@@ -66,8 +66,8 @@ export class Dashboard implements OnInit {
     this.loadStats();
   }
 
-  loadStats(forceRefresh: boolean = false) {
-    this.statsService.getStats(this.selectedRange, forceRefresh).subscribe({
+  loadStats() {
+    this.statsService.getStats(this.selectedRange).subscribe({
       next: (resp) => {
         if (resp && resp.data) {
           this.stats.set(resp.data);
@@ -78,6 +78,6 @@ export class Dashboard implements OnInit {
   }
 
   onRangeChange() {
-    this.loadStats(true);
+    this.loadStats();
   }
 }

@@ -4,10 +4,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MeasurementService {
-  baseUrl: any;
+  baseUrl: string;
 
   constructor(public http: HttpClient) {
     this.baseUrl = `${apis.baseUrl}/measurements`;
